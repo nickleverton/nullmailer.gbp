@@ -1,0 +1,134 @@
+#!/usr/bin/make -f
+
+BUILDDIR = debian/nullmailer
+DEBDIR   = $(BUILDDIR)/DEBIAN
+DOCDIR   = $(BUILDDIR)/usr/share/doc/nullmailer
+MANDIR   = $(BUILDDIR)/usr/share/man
+SPOOLDIR = $(BUILDDIR)/var/spool/nullmailer
+testdir  = test -f src/send.cc -a -f debian/rules
+testroot = test x`whoami` = xroot
+
+# FOR AUTOCONF 2.13 ONLY
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	CONFFLAGS += $(DEB_HOST_GNU_TYPE)
+else
+	CONFFLAGS += --host $(DEB_BUILD_GNU_TYPE) --build $(DEB_HOST_GNU_TYPE)
+endif
+
+# FOR AUTOCONF 2.52 AND NEWER ONLY
+#ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+#	CONFFLAGS += --build $(DEB_HOST_GNU_TYPE)
+#else
+#	CONFFLAGS += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+#endif
+
+CXXFLAGS = -Wall -g
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CXXFLAGS += -O0
+else
+	CXXFLAGS += -O2
+endif
+export CXXFLAGS
+
+clean:
+	$(testdir)
+	rm -f configure-stamp build-stamp
+	-$(MAKE) -i distclean
+	-cat `ls -r debian/patches/*.diff` /dev/null | patch -RENtp1 -r debian/rejected --no-backup-if-mismatch
+	rm -f  debian/files debian/rejected debian/substvars
+	rm -rf debian/nullmailer
+
+configure-stamp: configure
+	$(testdir)
+	-cat debian/patches/*.diff | patch -Ntp1 -r debian/rejected --no-backup-if-mismatch
+	./configure $(CONFFLAGS) --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib --localstatedir=/var/spool --mandir=/usr/share/man
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	$(testdir)
+	$(MAKE)
+	touch build-stamp
+
+binary: binary-arch
+
+binary-indep:
+
+binary-arch: build install
+	$(testdir)
+	$(testroot)
+	-rm -rf debian/nullmailer
+
+	$(MAKE) DESTDIR=$(CURDIR)/debian/nullmailer install
+	find $(BUILDDIR) -type d -print0 | xargs -0 chmod 0755
+
+	# installing binaries
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	find $(BUILDDIR)/usr -type f -perm -100 -print0 | xargs -0 strip -R .comment -R .note
+endif
+	chown mail $(BUILDDIR)/usr/sbin/nullmailer-queue
+	chmod 4755 $(BUILDDIR)/usr/sbin/nullmailer-queue
+	chown mail $(BUILDDIR)/usr/bin/mailq
+	chmod 4755 $(BUILDDIR)/usr/bin/mailq
+	mv  $(BUILDDIR)/usr/sbin/sendmail $(BUILDDIR)/usr/sbin/nullmailer-sendmail
+	chown root:root $(BUILDDIR)/usr/sbin/nullmailer-sendmail
+	# ln -s ../sbin/sendmail $(BUILDDIR)/usr/lib/sendmail
+	# chown root:root $(BUILDDIR)/usr/lib/sendmail
+	# ln -s /bin/true $(BUILDDIR)/usr/bin/newaliases
+
+	# installing spool directories
+	chown -R mail:root $(SPOOLDIR)
+	chmod 0750 $(SPOOLDIR)/queue
+	chmod 0750 $(SPOOLDIR)/tmp
+	rm -f $(BUILDDIR)/var/spool/nullmailer/trigger
+
+	# installing shared files
+	install -D -o root -g root -m 0644 debian/linda    $(BUILDDIR)/usr/share/linda/overrides/nullmailer
+	install -D -o root -g root -m 0644 debian/lintian  $(BUILDDIR)/usr/share/lintian/overrides/nullmailer
+	install -D -o root -g root -m 0644 debian/logcheck $(BUILDDIR)/etc/logcheck/ignore.d.paranoid/nullmailer
+	install -D -o root -g root -m 0644 debian/logcheck $(BUILDDIR)/etc/logcheck/ignore.d.server/nullmailer
+	install -D -o root -g root -m 0644 debian/logcheck $(BUILDDIR)/etc/logcheck/ignore.d.workstation/nullmailer
+
+	# installing manuals
+	# install -o root -g root -m 0644 debian/newaliases.1 $(MANDIR)/man1
+	find $(MANDIR) -type f -print0 | xargs -0 gzip -9
+	install -d -o root -g root -m 0755 $(MANDIR)/man5
+	ln -s ../man8/nullmailer-queue.8.gz  $(MANDIR)/man5/adminaddr.5.gz
+	ln -s ../man1/nullmailer-inject.1.gz $(MANDIR)/man5/defaultdomain.5.gz
+	ln -s ../man1/nullmailer-inject.1.gz $(MANDIR)/man5/defaulthost.5.gz
+	ln -s ../man1/nullmailer-inject.1.gz $(MANDIR)/man5/idhost.5.gz
+	ln -s ../man8/nullmailer-send.8.gz   $(MANDIR)/man5/pausetime.5.gz
+	ln -s ../man8/nullmailer-send.8.gz   $(MANDIR)/man5/remotes.5.gz
+	ln -s ../man7/nullmailer.7.gz        $(MANDIR)/man1/mailq.1.gz
+
+	# installing documentation
+	install -d -o root -g root -m 0755 $(DOCDIR)
+	install    -o root -g root -m 0644 BUGS NEWS README TODO debian/copyright debian/README.Debian $(DOCDIR)
+	install -D -o root -g root -m 0644 ChangeLog $(DOCDIR)/changelog
+	install -D -o root -g root -m 0644 debian/changelog $(DOCDIR)/changelog.Debian
+#	install -D -o root -g root -m 0644 debian/NEWS $(DOCDIR)/NEWS.Debian
+	find $(DOCDIR) -type f \( -size +8 -o -name 'changelog*' -o -name NEWS.Debian \) -print0 | xargs -0 gzip -9
+
+	# installing config files
+	install -D -m 0755 debian/init $(BUILDDIR)/etc/init.d/nullmailer
+
+	# installing packaging information
+	install -o root -g root -d $(DEBDIR)
+	install -o root -g root -m 0755 debian/config   $(DEBDIR)
+	install -o root -g root -m 0644 debian/control  $(DEBDIR)
+	install -o root -g root -m 0755 debian/preinst  $(DEBDIR)
+	install -o root -g root -m 0755 debian/postinst $(DEBDIR)
+	install -o root -g root -m 0755 debian/prerm    $(DEBDIR)
+	install -o root -g root -m 0755 debian/postrm   $(DEBDIR)
+	cd $(BUILDDIR) && find usr -type f -print0 | xargs -0 md5sum > DEBIAN/md5sums
+	cd $(BUILDDIR) && find ./etc -type f | cut -c 2- > DEBIAN/conffiles
+	po2debconf debian/templates > $(DEBDIR)/templates
+	chmod 0644 $(DEBDIR)/md5sums $(DEBDIR)/conffiles $(DEBDIR)/templates
+
+	# building Debian package
+	find $(BUILDDIR)/usr -type f -perm -100 -print0 | xargs -0 dpkg-shlibdeps
+	dpkg-gencontrol -isp -pnullmailer -P$(BUILDDIR)
+	dpkg --build $(BUILDDIR) ..
+	# binary target finished
+
+.PHONY: clean build install binary binary-indep binary-arch
