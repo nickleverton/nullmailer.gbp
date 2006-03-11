@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 1999-2003  Bruce Guenter <bruceg@em.ca>
+// Copyright (C) 1999-2003  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// You can contact me at <bruceg@em.ca>.  There is also a mailing list
+// You can contact me at <bruce@untroubled.org>.  There is also a mailing list
 // available to discuss this package.  To subscribe, send an email to
-// <nullmailer-subscribe@lists.em.ca>.
+// <nullmailer-subscribe@lists.untroubled.org>.
 
 #include "config.h"
 #include "defines.h"
@@ -66,7 +66,7 @@ cli_option cli_options[] = {
     "Send the formatted message to standard output", 0 },
   { 'v', "show-envelope", cli_option::flag, 1, &show_envelope,
     "Show the envelope with the message", 0 },
-  {0},
+  {0, 0, cli_option::flag, 0, 0, 0, 0}
 };
 
 #define fail(MSG) do{ fout << "nullmailer-inject: " << MSG << endl; return false; }while(0)
@@ -100,6 +100,7 @@ void read_config()
 ///////////////////////////////////////////////////////////////////////////////
 static slist recipients;
 static mystring sender;
+static bool use_header_sender = true;
 static bool use_header_recips = true;
 
 void parse_recips(const mystring& list)
@@ -165,7 +166,8 @@ struct header_field
 	return true;
       if(is_resent) {
 	if(!header_is_resent) {
-	  sender = "";
+	  // if(use_header_sender)	// There is no Resent-Return-Path
+	  //   sender = "";
 	  if(use_header_recips)
 	    recipients.empty();
 	}
@@ -174,7 +176,8 @@ struct header_field
       if(is_address) {
 	mystring tmp = line.right(length);
 	mystring list;
-	if(!parse_addresses(tmp, list))
+	fout << "Tmp=" << tmp << ", list=" << list << "." << endl;
+	if(!parse_addresses(tmp, list) && tmp != "<>")
 	  bad_hdr(line, "Unable to parse the addresses.");
 	else if(!tmp) {
 	  rm = true;
@@ -187,7 +190,7 @@ struct header_field
 	      parse_recips(list);
 	  }
 	  else if(is_sender) {
-	    if(is_resent == header_is_resent && !sender)
+	    if(is_resent == header_is_resent && use_header_sender)
 	      parse_sender(list);
 	  }
 	}
@@ -282,7 +285,7 @@ void setup_from()
   if(!shost) shost = host;
   canonicalize(shost);
   
-  if(!sender)
+  if(use_header_sender && !sender)
     sender = suser + "@" + shost;
 }
 
@@ -333,7 +336,7 @@ bool read_header()
 {
   mystring whole;
   while(fin.getline(cur_line)) {
-    if(!cur_line)
+    if(!cur_line || cur_line == "\r")
       break;
     if(!!whole && is_continuation(cur_line)) {
       //if(!whole)
@@ -349,6 +352,7 @@ bool read_header()
       if(!!whole)
 	parse_line(whole);
       whole = cur_line;
+      cur_line = "";
     }
   }
   if(!!whole)
@@ -541,11 +545,13 @@ bool parse_args(int argc, char* argv[])
   if(o_from) {
     mystring list;
     mystring tmp(o_from);
-    if(!parse_addresses(tmp, list) ||
-       !parse_sender(list)) {
+    if(tmp != "" && 
+      (!parse_addresses(tmp, list) ||
+       !parse_sender(list))) {
       fout << "nullmailer-inject: Invalid sender address: " << o_from << endl;
       return false;
     }
+    use_header_sender = false;
   }
   use_header_recips = (use_recips != use_args);
   if(use_recips == use_header)

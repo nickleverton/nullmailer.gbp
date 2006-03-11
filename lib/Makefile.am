@@ -6,6 +6,7 @@ CLEANFILES = defines.cc
 
 libmisc_a_SOURCES = \
 	address.h address.cc \
+	base64.h base64.cc \
 	canonicalize.h canonicalize.cc \
 	configio.h config_read.cc config_readlist.cc config_readint.cc \
 	connect.h tcpconnect.cc \
@@ -36,4 +37,5 @@ defines.cc: Makefile.am make_defines.sh
 
 dist-hook:
 	$(RM) -f $(distdir)/defines.cc
-	cp -dP `find ac -name CVS -prune -o -type f -print` $(distdir)
+	mkdir $(distdir)/ac
+	cp -dP `find ac -name CVS -prune -o -type f -print` $(distdir)/ac/

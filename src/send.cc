@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 1999-2003  Bruce Guenter <bruceg@em.ca>
+// Copyright (C) 2005  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// You can contact me at <bruceg@em.ca>.  There is also a mailing list
+// You can contact me at <bruce@untroubled.org>.  There is also a mailing list
 // available to discuss this package.  To subscribe, send an email to
-// <nullmailer-subscribe@lists.em.ca>.
+// <nullmailer-subscribe@lists.untroubled.org>.
 
 #include "config.h"
 #include <ctype.h>
@@ -30,7 +30,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include "ac/time.h"
+#include "ac/systime.h"
 #include "configio.h"
 #include "defines.h"
 #include "errcodes.h"
@@ -166,7 +166,7 @@ void exec_protocol(int fd, remote& remote)
   unsigned i = 0;
   args[i++] = program.c_str();
   for(slist::const_iter opt(remote.options); opt; opt++)
-    args[i++] = (*opt).c_str();
+    args[i++] = strdup((*opt).c_str());
   args[i++] = remote.host.c_str();
   args[i++] = 0;
   execv(args[0], (char**)args);

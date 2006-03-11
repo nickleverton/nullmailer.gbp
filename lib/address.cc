@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 1999-2003  Bruce Guenter <bruceg@em.ca>
+// Copyright (C) 1999-2003  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// You can contact me at <bruceg@em.ca>.  There is also a mailing list
+// You can contact me at <bruce@untroubled.org>.  There is also a mailing list
 // available to discuss this package.  To subscribe, send an email to
-// <nullmailer-subscribe@lists.em.ca>.
+// <nullmailer-subscribe@lists.untroubled.org>.
 
 #include "config.h"
 #include <ctype.h>
@@ -396,18 +396,19 @@ RULE(domain)
     node = r.next = skipcomment(r.next, comment);
     if(node->type != PERIOD)
       break;
+    r.str += PERIOD;
+    r.addr += PERIOD;
     node = node->next;
     result r1 = match_sub_domain(node);
     if(r1) {
       r.next = r1.next;
-      r.str += PERIOD;
       r.str += r1.str;
       comment += r1.comment;
-      r.addr += PERIOD;
       r.addr += r1.addr;
     }
     else {
       r.next = node;
+      node = r.next = skipcomment(r.next, comment);
     }
   }
   r.comment += comment;

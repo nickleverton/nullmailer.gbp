@@ -1,0 +1,13 @@
+--- nullmailer-1.00/src/queue.cc.orig	2003-01-12 04:21:50.000000000 +0000
++++ nullmailer-1.00/src/queue.cc	2006-01-10 11:26:40.061478988 +0000
+@@ -95,8 +95,9 @@
+ {
+   mystring str;
+-  if(!fin.getline(str) || !str)
++  if(!fin.getline(str))
+     fail("Could not read envelope sender.");
+-  if(!validate_addr(str, false))
++  if(!validate_addr(str, false) && str != "")
+     fail("Envelope sender address is invalid.");
+   if(!(out << str << endl))
+     fail("Could not write envelope sender.");

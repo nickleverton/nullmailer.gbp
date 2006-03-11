@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 1999-2003  Bruce Guenter <bruceg@em.ca>
+// Copyright (C) 1999-2003  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// You can contact me at <bruceg@em.ca>.  There is also a mailing list
+// You can contact me at <bruce@untroubled.org>.  There is also a mailing list
 // available to discuss this package.  To subscribe, send an email to
-// <nullmailer-subscribe@lists.em.ca>.
+// <nullmailer-subscribe@lists.untroubled.org>.
 
 #include <config.h>
 #include <stdlib.h>
@@ -37,12 +37,13 @@ const int cli_args_max = -1;
 static int o_dummyi;
 static const char* o_dummys;
 static const char* o_sender = 0;
+static const char* o_mode = 0;
 static char* o_from;
 static int use_header = false;
 
 cli_option cli_options[] = {
   { 'B', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
-  { 'b', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
+  { 'b', 0, cli_option::string, 0, &o_mode, "Ignored", 0 },
   { 'C', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
   { 'd', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
   { 'F', 0, cli_option::string, 0, &o_sender,
@@ -68,7 +69,7 @@ cli_option cli_options[] = {
   { 'V', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
   { 'v', 0, cli_option::flag, 0, &o_dummyi, "Ignored", 0 },
   { 'X', 0, cli_option::string, 0, &o_dummys, "Ignored", 0 },
-  {0}
+  {0, 0, cli_option::flag, 0, 0, 0, 0}
 };
 
 #ifdef HAVE_SETENV
@@ -80,7 +81,7 @@ int setenv(const char* var, const char* val, int overwrite)
 {
   size_t varlen = strlen(var);
   size_t vallen = strlen(val);
-  char* str = malloc(varlen+vallen+2);
+  char* str = (char*)malloc(varlen+vallen+2);
   if (str == 0) return -1;
   memcpy(str, var, varlen);
   str[varlen] = '=';
@@ -108,6 +109,10 @@ int parseargs()
   if(o_from)
     if(!setenvelope(o_from))
       return -1;
+  if (o_mode && !strcmp(o_mode, "s")) {
+    ferr << "sendmail: option -bs is unsupported" << endl;
+    return -1;
+  }
   return 0;
 }
 

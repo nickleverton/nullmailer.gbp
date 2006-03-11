@@ -37,9 +37,12 @@ clean:
 	-cat `ls -r debian/patches/*.diff` /dev/null | patch -RENtp1 -r debian/rejected --no-backup-if-mismatch
 	rm -f  debian/files debian/rejected debian/substvars
 	rm -rf debian/nullmailer
+	-test -r /usr/share/misc/config.sub && cp -f /usr/share/misc/config.sub config.sub
+	-test -r /usr/share/misc/config.guess && cp -f /usr/share/misc/config.guess config.guess
 
 configure-stamp: configure
 	$(testdir)
+	autoconf
 	-cat debian/patches/*.diff | patch -Ntp1 -r debian/rejected --no-backup-if-mismatch
 	./configure $(CONFFLAGS) --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib --localstatedir=/var/spool --mandir=/usr/share/man
 	touch configure-stamp
@@ -70,11 +73,11 @@ endif
 	chmod 4755 $(BUILDDIR)/usr/sbin/nullmailer-queue
 	chown mail $(BUILDDIR)/usr/bin/mailq
 	chmod 4755 $(BUILDDIR)/usr/bin/mailq
-	mv  $(BUILDDIR)/usr/sbin/sendmail $(BUILDDIR)/usr/sbin/nullmailer-sendmail
-	chown root:root $(BUILDDIR)/usr/sbin/nullmailer-sendmail
 	# ln -s ../sbin/sendmail $(BUILDDIR)/usr/lib/sendmail
 	# chown root:root $(BUILDDIR)/usr/lib/sendmail
 	# ln -s /bin/true $(BUILDDIR)/usr/bin/newaliases
+	rm -f $(BUILDDIR)/usr/lib/sendmail	#
+	rm -f $(BUILDDIR)/usr/sbin/sendmail	#
 
 	# installing spool directories
 	chown -R mail:root $(SPOOLDIR)
@@ -90,7 +93,7 @@ endif
 	install -D -o root -g root -m 0644 debian/logcheck $(BUILDDIR)/etc/logcheck/ignore.d.workstation/nullmailer
 
 	# installing manuals
-	# install -o root -g root -m 0644 debian/newaliases.1 $(MANDIR)/man1
+	install -o root -g root -m 0644 debian/newaliases.1 $(MANDIR)/man1
 	find $(MANDIR) -type f -print0 | xargs -0 gzip -9
 	install -d -o root -g root -m 0755 $(MANDIR)/man5
 	ln -s ../man8/nullmailer-queue.8.gz  $(MANDIR)/man5/adminaddr.5.gz
