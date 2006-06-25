@@ -1,0 +1,192 @@
+#! /bin/sh -e
+if [ $# -ne 1 ]; then 
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1  
+fi
+case "$1" in 
+    -patch) patch -f --no-backup-if-mismatch -p1 < $0;;
+    -unpatch) patch -f --no-backup-if-mismatch -R -p1 < $0;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urw nullmailer-1.02.orig/debian/README.Debian nullmailer-1.02/debian/README.Debian
+--- nullmailer-1.02.orig/debian/README.Debian	2006-06-25 02:20:44.000000000 +0100
++++ nullmailer-1.02/debian/README.Debian	2006-06-25 02:48:02.000000000 +0100
+@@ -19,9 +19,20 @@
+ | /etc/aliases              |
+ +---------------------------+
+ 
+-nullmailer doesn't support /etc/aliases, the newaliases command provides a
+-dummy script for policy compliance only. A catch-all alias for local users may
+-be achieved using the adminaddr(5) control file.
++nullmailer doesn't support /etc/aliases, the newaliases command has been
++removed from this package - use the one your MTA provides. A catch-all
++alias for local users may be achieved using the adminaddr(5) control file.
++
++
+++---------------------------+
++| /usr/lib/sendmail         |
+++---------------------------+
++
++/usr/lib/sendmail, /usr/sbin/sendmail and 'Provides: mail-transport-agent'
++have also been removed from this package, in order not to conflict with
++your full MTA.  This means it doesn't matter that nullmailer's sendmail
++doesn't implement -bs, and also means that nullmailer no longer conflicts
++with the LSB.
+ 
+ 
+ +---------------------------+
+@@ -46,3 +57,4 @@
+ 
+ 
+  -- Norbert Tretkowski <nobse@debian.org>  Tue, 16 May 2006 00:45:46 -0500
++ -- Nick Leverton     <nick@leverton.org>  Sun, 25 Jun 2006 02:47:00 +0100
+diff -urw nullmailer-1.02.orig/debian/control nullmailer-1.02/debian/control
+--- nullmailer-1.02.orig/debian/control	2006-06-25 02:20:44.000000000 +0100
++++ nullmailer-1.02/debian/control	2006-06-25 02:27:48.000000000 +0100
+@@ -9,13 +9,12 @@
+ Architecture: any
+ Depends: ${shlibs:Depends}, debconf (>= 0.5) | debconf-2.0, lsb-base
+ Recommends: sysklogd | system-log-daemon
+-Conflicts: mail-transport-agent, suidmanager (<< 0.52), lsb
+-Provides: mail-transport-agent
+-Replaces: mail-transport-agent
++Conflicts: suidmanager (<< 0.52)
+ Description: simple relay-only mail transport agent
+  Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
+  smart relays. It is designed to be simple to configure and especially
+  useful on slave machines and in chroots.
+  .
+- The sendmail interface of this package doesn't provide the -bs switch,
+- hence it's not LSB compatible!
++ This package omits the /usr/lib/sendmail binary and does not Provide:
++ mail-transport-agent, so that it can be installed on the same machine
++ as a full MTA.
+diff -urw nullmailer-1.02.orig/debian/install nullmailer-1.02/debian/install
+--- nullmailer-1.02.orig/debian/install	2006-06-25 02:20:44.000000000 +0100
++++ nullmailer-1.02/debian/install	2006-06-25 02:40:54.000000000 +0100
+@@ -1,4 +1,3 @@
+ debian/logcheck etc
+-debian/man/newaliases.1 usr/share/man/man1
+ debian/lintian usr/share
+ debian/linda usr/share
+diff -urw nullmailer-1.02.orig/debian/links nullmailer-1.02/debian/links
+--- nullmailer-1.02.orig/debian/links	2006-06-25 02:20:44.000000000 +0100
++++ nullmailer-1.02/debian/links	2006-06-25 02:42:17.000000000 +0100
+@@ -1,5 +1,3 @@
+-bin/true usr/bin/newaliases
+-usr/sbin/sendmail usr/lib/sendmail
+ usr/share/man/man7/nullmailer.7.gz usr/share/man/man1/mailq.1.gz
+ usr/share/man/man8/nullmailer-queue.8.gz usr/share/man/man5/adminaddr.5.gz
+ usr/share/man/man1/nullmailer-inject.1.gz usr/share/man/man5/defaultdomain.5.gz
+diff -urw nullmailer-1.02.orig/doc/Makefile.am nullmailer-1.02/doc/Makefile.am
+--- nullmailer-1.02.orig/doc/Makefile.am	2002-12-16 20:24:27.000000000 +0000
++++ nullmailer-1.02/doc/Makefile.am	2006-06-25 02:24:23.000000000 +0100
+@@ -1,7 +1,6 @@
+ # info_TEXINFOS = nullmailer.texi
+ man_MANS = \
+ 	nullmailer-inject.1 \
+-	sendmail.1 \
+ 	nullmailer.7 \
+ 	nullmailer-queue.8 \
+ 	nullmailer-send.8
+diff -urw nullmailer-1.02.orig/doc/Makefile.in nullmailer-1.02/doc/Makefile.in
+--- nullmailer-1.02.orig/doc/Makefile.in	2005-12-07 22:34:59.000000000 +0000
++++ nullmailer-1.02/doc/Makefile.in	2006-06-25 02:24:29.000000000 +0100
+@@ -140,7 +140,6 @@
+ # info_TEXINFOS = nullmailer.texi
+ man_MANS = \
+ 	nullmailer-inject.1 \
+-	sendmail.1 \
+ 	nullmailer.7 \
+ 	nullmailer-queue.8 \
+ 	nullmailer-send.8
+diff -urw nullmailer-1.02.orig/src/Makefile.am nullmailer-1.02/src/Makefile.am
+--- nullmailer-1.02.orig/src/Makefile.am	2002-12-16 20:24:27.000000000 +0000
++++ nullmailer-1.02/src/Makefile.am	2006-06-25 02:24:49.000000000 +0100
+@@ -3,8 +3,7 @@
+ 	nullmailer-inject
+ sbin_PROGRAMS = \
+ 	nullmailer-queue \
+-	nullmailer-send \
+-	sendmail
++	nullmailer-send
+ 
+ #noinst_PROGRAMS = address
+ 
+@@ -22,6 +21,3 @@
+ nullmailer_send_SOURCES = send.cc
+ nullmailer_send_LDADD = ../lib/libnullmailer.a
+ 
+-sendmail_SOURCES = sendmail.cc
+-sendmail_LDADD = ../lib/cli++/libcli++.a ../lib/libnullmailer.a
+-
+diff -urw nullmailer-1.02.orig/src/Makefile.in nullmailer-1.02/src/Makefile.in
+--- nullmailer-1.02.orig/src/Makefile.in	2006-06-25 02:21:09.000000000 +0100
++++ nullmailer-1.02/src/Makefile.in	2006-06-25 02:25:16.000000000 +0100
+@@ -35,8 +35,7 @@
+ PRE_UNINSTALL = :
+ POST_UNINSTALL = :
+ bin_PROGRAMS = mailq$(EXEEXT) nullmailer-inject$(EXEEXT)
+-sbin_PROGRAMS = nullmailer-queue$(EXEEXT) nullmailer-send$(EXEEXT) \
+-	sendmail$(EXEEXT)
++sbin_PROGRAMS = nullmailer-queue$(EXEEXT) nullmailer-send$(EXEEXT)
+ subdir = src
+ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+@@ -64,9 +63,6 @@
+ am_nullmailer_send_OBJECTS = send.$(OBJEXT)
+ nullmailer_send_OBJECTS = $(am_nullmailer_send_OBJECTS)
+ nullmailer_send_DEPENDENCIES = ../lib/cli++/libcli++.a ../lib/libnullmailer.a
+-am_sendmail_OBJECTS = sendmail.$(OBJEXT)
+-sendmail_OBJECTS = $(am_sendmail_OBJECTS)
+-sendmail_DEPENDENCIES = ../lib/cli++/libcli++.a ../lib/libnullmailer.a
+ DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+@@ -76,11 +72,9 @@
+ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+ 	-o $@
+ SOURCES = $(mailq_SOURCES) $(nullmailer_inject_SOURCES) \
+-	$(nullmailer_queue_SOURCES) $(nullmailer_send_SOURCES) \
+-	$(sendmail_SOURCES)
++	$(nullmailer_queue_SOURCES) $(nullmailer_send_SOURCES)
+ DIST_SOURCES = $(mailq_SOURCES) $(nullmailer_inject_SOURCES) \
+-	$(nullmailer_queue_SOURCES) $(nullmailer_send_SOURCES) \
+-	$(sendmail_SOURCES)
++	$(nullmailer_queue_SOURCES) $(nullmailer_send_SOURCES)
+ ETAGS = etags
+ CTAGS = ctags
+ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+@@ -178,8 +172,6 @@
+ nullmailer_queue_LDADD = ../lib/libnullmailer.a
+ nullmailer_send_SOURCES = send.cc
+ nullmailer_send_LDADD = ../lib/cli++/libcli++.a ../lib/libnullmailer.a
+-sendmail_SOURCES = sendmail.cc
+-sendmail_LDADD = ../lib/cli++/libcli++.a ../lib/libnullmailer.a
+ all: all-am
+ 
+ .SUFFIXES:
+@@ -271,9 +263,6 @@
+ nullmailer-send$(EXEEXT): $(nullmailer_send_OBJECTS) $(nullmailer_send_DEPENDENCIES) 
+ 	@rm -f nullmailer-send$(EXEEXT)
+ 	$(CXXLINK) $(nullmailer_send_LDFLAGS) $(nullmailer_send_OBJECTS) $(nullmailer_send_LDADD) $(LIBS)
+-sendmail$(EXEEXT): $(sendmail_OBJECTS) $(sendmail_DEPENDENCIES) 
+-	@rm -f sendmail$(EXEEXT)
+-	$(CXXLINK) $(sendmail_LDFLAGS) $(sendmail_OBJECTS) $(sendmail_LDADD) $(LIBS)
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+@@ -285,7 +274,6 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mailq.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queue.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/send.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sendmail.Po@am__quote@
+ 
+ .cc.o:
+ @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

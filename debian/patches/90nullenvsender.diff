@@ -1,6 +1,115 @@
---- nullmailer-1.00/src/queue.cc.orig	2003-01-12 04:21:50.000000000 +0000
-+++ nullmailer-1.00/src/queue.cc	2006-01-10 11:26:40.061478988 +0000
-@@ -95,8 +95,8 @@
+#! /bin/sh -e
+if [ $# -ne 1 ]; then 
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1  
+fi
+case "$1" in 
+    -patch) patch -f --no-backup-if-mismatch -p1 < $0;;
+    -unpatch) patch -f --no-backup-if-mismatch -R -p1 < $0;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urw nullmailer-1.02/lib/address.cc nullmailer-dbg/lib/address.cc
+--- nullmailer-1.02/lib/address.cc	2005-11-10 16:11:12.000000000 +0000
++++ nullmailer-dbg/lib/address.cc	2006-06-25 16:01:04.000000000 +0100
+@@ -518,6 +518,17 @@
+   RETURN(node, "<" + r2.str + ">" + comment, "", r2.addr);
+ }
+ 
++RULE(null_addr) 
++{
++  ENTER("LABRACKET RABRACKET");
++  mystring comment;
++  node = skipcomment(node, comment);
++  MATCHTOKEN(LABRACKET);
++  node = skipcomment(node, comment);
++  MATCHTOKEN(RABRACKET);
++  RETURN(node, "<>" + comment, "", "");
++}
++
+ RULE(phrase)
+ {
+   ENTER("word *word");
+@@ -646,7 +657,8 @@
+   anode* tokenlist = tokenize(line.c_str());
+   if(!tokenlist)
+     return false;
+-  result r = match_addresses(tokenlist);
++  result r = match_null_addr(tokenlist);
++  if (!r) r = match_addresses(tokenlist);
+   del_tokens(tokenlist);
+   if(r) {
+     line = r.str;
+diff -urw nullmailer-1.02/src/inject.cc nullmailer-dbg/src/inject.cc
+--- nullmailer-1.02/src/inject.cc	2005-11-10 16:11:12.000000000 +0000
++++ nullmailer-dbg/src/inject.cc	2006-06-25 15:59:28.000000000 +0100
+@@ -100,6 +100,7 @@
+ ///////////////////////////////////////////////////////////////////////////////
+ static slist recipients;
+ static mystring sender;
++static bool use_header_sender = true;
+ static bool use_header_recips = true;
+ 
+ void parse_recips(const mystring& list)
+@@ -126,6 +127,9 @@
+ bool parse_sender(const mystring& list)
+ {
+   int end = list.find_first('\n');
++  if(end == -1) {
++    return true;	// null sender
++  }
+   if(end > 0 && list.find_first('\n', end+1) < 0) {
+     sender = list.sub(0, end);
+     return true;
+@@ -165,7 +169,8 @@
+ 	return true;
+       if(is_resent) {
+ 	if(!header_is_resent) {
+-	  sender = "";
++	  // if(use_header_sender)	// There is no Resent-Return-Path
++	  //   sender = "";
+ 	  if(use_header_recips)
+ 	    recipients.empty();
+ 	}
+@@ -187,8 +192,10 @@
+ 	      parse_recips(list);
+ 	  }
+ 	  else if(is_sender) {
+-	    if(is_resent == header_is_resent && !sender)
++	    if(is_resent == header_is_resent && use_header_sender) {
+ 	      parse_sender(list);
++	      use_header_sender = 0;
++	    }
+ 	  }
+ 	}
+       }
+@@ -282,7 +289,7 @@
+   if(!shost) shost = host;
+   canonicalize(shost);
+   
+-  if(!sender)
++  if(use_header_sender && !sender)
+     sender = suser + "@" + shost;
+ }
+ 
+@@ -547,6 +554,7 @@
+       fout << "nullmailer-inject: Invalid sender address: " << o_from << endl;
+       return false;
+     }
++    use_header_sender = false;
+   }
+   use_header_recips = (use_recips != use_args);
+   if(use_recips == use_header)
+diff -urw nullmailer-1.02/src/queue.cc nullmailer-dbg/src/queue.cc
+--- nullmailer-1.02/src/queue.cc	2005-11-10 16:11:12.000000000 +0000
++++ nullmailer-dbg/src/queue.cc	2006-06-25 15:45:07.000000000 +0100
+@@ -94,9 +94,9 @@
+ bool copyenv(fdobuf& out)
  {
    mystring str;
 -  if(!fin.getline(str) || !str)

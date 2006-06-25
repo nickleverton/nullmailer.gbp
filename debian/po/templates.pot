@@ -15,7 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-06-28 20:49+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-15 23:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,11 +24,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
 #: ../templates:3
-msgid "Please enter the mail name of your system:"
+msgid "Mailname of your system:"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:3
 msgid ""
@@ -35,11 +38,13 @@ msgid ""
 "defaults to the literal name 'me'."
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:9
-msgid "Please specify your smarthosts:"
+msgid "Smarthosts:"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:9
 msgid ""
@@ -49,24 +54,28 @@ msgid ""
 "smtp, and may be followed by command-line arguments for that module."
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:9
 msgid "Examples:"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:9
 msgid ""
 "  smarthost\n"
 "  smarthost smtp --port=10025\n"
-"  smarthost:mx.domain:192.168.1.1"
+"  smarthost smtp --user=foo --pass=bar"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:23
-msgid "To which address shall nullmailer send local emails (optional)?"
+msgid "Where to send local emails (optional):"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:23
 msgid ""

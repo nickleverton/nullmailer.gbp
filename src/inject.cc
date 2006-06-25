@@ -100,7 +100,6 @@ void read_config()
 ///////////////////////////////////////////////////////////////////////////////
 static slist recipients;
 static mystring sender;
-static bool use_header_sender = true;
 static bool use_header_recips = true;
 
 void parse_recips(const mystring& list)
@@ -166,8 +165,7 @@ struct header_field
 	return true;
       if(is_resent) {
 	if(!header_is_resent) {
-	  // if(use_header_sender)	// There is no Resent-Return-Path
-	  //   sender = "";
+	  sender = "";
 	  if(use_header_recips)
 	    recipients.empty();
 	}
@@ -176,8 +174,7 @@ struct header_field
       if(is_address) {
 	mystring tmp = line.right(length);
 	mystring list;
-	fout << "Tmp=" << tmp << ", list=" << list << "." << endl;
-	if(!parse_addresses(tmp, list) && tmp != "<>")
+	if(!parse_addresses(tmp, list))
 	  bad_hdr(line, "Unable to parse the addresses.");
 	else if(!tmp) {
 	  rm = true;
@@ -190,7 +187,7 @@ struct header_field
 	      parse_recips(list);
 	  }
 	  else if(is_sender) {
-	    if(is_resent == header_is_resent && use_header_sender)
+	    if(is_resent == header_is_resent && !sender)
 	      parse_sender(list);
 	  }
 	}
@@ -285,7 +282,7 @@ void setup_from()
   if(!shost) shost = host;
   canonicalize(shost);
   
-  if(use_header_sender && !sender)
+  if(!sender)
     sender = suser + "@" + shost;
 }
 
@@ -545,13 +542,11 @@ bool parse_args(int argc, char* argv[])
   if(o_from) {
     mystring list;
     mystring tmp(o_from);
-    if(tmp != "" && 
-      (!parse_addresses(tmp, list) ||
-       !parse_sender(list))) {
+    if(!parse_addresses(tmp, list) ||
+       !parse_sender(list)) {
       fout << "nullmailer-inject: Invalid sender address: " << o_from << endl;
       return false;
     }
-    use_header_sender = false;
   }
   use_header_recips = (use_recips != use_args);
   if(use_recips == use_header)

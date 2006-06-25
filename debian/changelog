@@ -1,12 +1,72 @@
-nullmailer (1:1.02-1njl.0) unstable; urgency=low
+nullmailer (1:1.02-7njl.1) sarge-backports; urgency=low
 
-  * Backport to Sarge
-  * Remove references to mail-transport-agent so we can feed another MTA.
-  * Don't make /usr/sbin/sendmail so we don't conflict with another MTA.
-  * Remove IPv6 support as it doesn't compile and I've no time to fix. ???
-  * Add patch 90nullenvsender to permit null envelope sender ???
+  * Backport to Sarge.
+  * Remove /usr/lib/sendmail and mail-transport-agent so this package
+    can install alongside a real MTA.
+  * Allow null envelope-sender.
+  * Send QUIT before disconnecting, to reduce log noise from MTAs that do
+    care about strict RFC2821 (reverts an early upstream change).
+  * Remove IPv6 patch as it needs AI_NUMERICSERV and I haven't time to fix it.
 
- -- Nick Leverton <nick@leverton.org>  Sat, 11 Mar 2006 12:58:35 +0000
+ -- Nick Leverton <nick@leverton.org>  Sun, 25 Jun 2006 16:43:44 +0100
+
+nullmailer (1:1.02-8) unstable; urgency=low
+
+  * Fixed links to manpages. (closes: #373104)
+  * Readded autoconf and automake1.9 build-depencencies to fix IPv6 support
+    again. (closes: #369743)
+  * Added patch from Marc Herbert to fix autoconf/automake madness.
+    (closes: #373267)
+  * Removed ucf handling from postinst. (closes: #369568)
+  * Updated french debconf translation from Philippe Batailler.
+    (closes: #366750)
+
+ -- Norbert Tretkowski <nobse@debian.org>  Thu, 15 Jun 2006 23:32:48 +0200
+
+nullmailer (1:1.02-7) unstable; urgency=low
+
+  * Updated french debconf translation from Philippe Batailler.
+    (closes: #366750)
+  * Added a new patch to use EHLO instead HELO when using SMTP AUTH.
+    (closes: #366685)
+  * Removed outdated informations about backports from README.Debian.
+
+ -- Norbert Tretkowski <nobse@debian.org>  Fri, 26 May 2006 14:07:24 +0200
+
+nullmailer (1:1.02-6) unstable; urgency=low
+
+  * Launch debconf-updatepo in debian/rules. (closes: #366686)
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sat, 13 May 2006 23:05:32 -0500
+
+nullmailer (1:1.02-5) unstable; urgency=medium
+
+  * Preserve administrator settings when debconf is used. (closes: #366296)
+
+ -- Norbert Tretkowski <nobse@debian.org>  Wed, 10 May 2006 18:25:24 -0500
+
+nullmailer (1:1.02-4) unstable; urgency=low
+
+  * Updated Standards-Version to 3.7.2.0, no changes required.
+  * Really added support for smtp auth via debconf (got lost in -3).
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sun,  7 May 2006 16:03:11 -0500
+
+nullmailer (1:1.02-3) unstable; urgency=low
+
+  * Complete rewrite of build-sytem:
+    + Switched to debhelper and dpatch.
+    + Added support for smtp auth via debconf. (closes: #349485)
+    + Removed ucf support. (closes: #311621, #333313)
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sat, 15 Apr 2006 17:13:20 +0200
+
+nullmailer (1:1.02-2) unstable; urgency=low
+
+  * Fixed 05syslog.diff so successfully sent mails are no longer logged as
+    failures. (closes: #351021)
+
+ -- Norbert Tretkowski <nobse@debian.org>  Thu, 30 Mar 2006 18:03:25 +0200
 
 nullmailer (1:1.02-1) unstable; urgency=low
 

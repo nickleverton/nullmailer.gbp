@@ -1,0 +1,7 @@
+01_manual.diff
+03_syslog.diff
+04_ehlo.diff
+05_autoconf.diff
+90nullenvsender.diff
+92nosendmail.diff
+93sendquit.diff
