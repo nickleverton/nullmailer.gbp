@@ -1,7 +1,7 @@
 01_manual.diff
+02_ipv6.diff
 03_syslog.diff
-04_ehlo.diff
-05_autoconf.diff
-90nullenvsender.diff
-92nosendmail.diff
-93sendquit.diff
+04_autoconf.diff
+05_errors_on_stderr.diff
+90_nullenvsender.diff
+93_sendquit.diff
