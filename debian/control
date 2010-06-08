@@ -9,15 +9,32 @@ Homepage: http://untroubled.org/nullmailer/
 
 Package: nullmailer
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base
-Recommends: rsyslog | system-log-daemon
-Conflicts: mail-transport-agent, suidmanager (<< 0.52), lsb
-Provides: mail-transport-agent
-Replaces: mail-transport-agent
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.2-13)
+Recommends: rsyslog | system-log-daemon, nullmailer-sendmail
+Conflicts: suidmanager (<< 0.52)
 Description: simple relay-only mail transport agent
  Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
  smart relays. It is designed to be simple to configure and especially
  useful on slave machines and in chroots.
+ .
+ This package omits the /usr/lib/sendmail binary and does not Provide:
+ mail-transport-agent, so that it can be installed on the same
+ machine as a full MTA.  Hence it's not LSB compatible.  To provide a
+ mail-transport-agent, install nullmailer-sendmail as well.
+
+Package: nullmailer-sendmail
+Architecture: any
+Depends: nullmailer (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: mail-transport-agent, suidmanager (<< 0.52), lsb
+Provides: mail-transport-agent
+Replaces: mail-transport-agent
+Description: simple relay-only mail transport agent - sendmail binary
+ Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
+ smart relays. It is designed to be simple to configure and especially
+ useful on slave machines and in chroots.
+ .
+ This package includes the /usr/{sbin,lib}/sendmail binary and Provides:
+ mail-transport-agent when installed in conjunction with nullmailer.
  .
  The sendmail interface of this package doesn't provide the -bs switch,
  hence it's not LSB compatible!

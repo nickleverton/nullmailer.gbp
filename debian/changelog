@@ -1,3 +1,20 @@
+nullmailer (1:1.05-1~1+njl.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Allow co-existence of nullmailer package with other mail-transport-agents
+    for "dual queue" mail scanning setups:
+    - nullmailer package is no longer a mail-transport-agent, but it Recommends
+      nullmailer-sendmail which is;
+    - move sendmail binaries to new nullmailer-sendmail package;
+    - rename mailq to nullmailer-mailq to avoid conflict with real MTA's mailq;
+    - new package nullmailer-sendmail to provide /usr/{lib,sbin}/sendmail and
+      /usr/bin/mailq so this package can be an LSB mail-transport-agent.
+    - move dummy newaliases symlink into nullmailer-sendmail so that package
+      can be a Debian mail-transport-agent, and update man page to refer to
+      correct Policy section 11.6.
+
+ -- Nick Leverton <nick@leverton.org>  Tue, 08 Jun 2010 10:37:54 +0100
+
 nullmailer (1:1.05-1~1njl.1) unstable; urgency=low
 
   * Non-maintainer upload.

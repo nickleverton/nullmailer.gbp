@@ -38,14 +38,15 @@ override_dh_auto_configure:
 PKGDIR = $(CURDIR)/debian/nullmailer
 SPOOLDIR = $(CURDIR)/debian/nullmailer/var/spool/nullmailer
 
-override_dh_auto_install:
-	dh_auto_install
-	rm -f $(SPOOLDIR)/trigger
+override_dh_install:
+	dh_install -pnullmailer -Xsendmail
+	dh_install --remaining-packages
+	mv $(PKGDIR)/usr/bin/mailq $(PKGDIR)/usr/bin/nullmailer-mailq
 
 override_dh_fixperms:
 	dh_fixperms
-	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
-	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
+	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
+	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
 	chown -R mail:root $(SPOOLDIR)
 	chmod 0755 $(SPOOLDIR)
 	chmod 0750 $(SPOOLDIR)/queue $(SPOOLDIR)/tmp
