@@ -14,23 +14,36 @@ esac
 exit 0
 
 @DPATCH@
---- nullmailer-1.00RC7/lib/hostname.cc
-+++ nullmailer-1.00RC7/lib/hostname.cc
-@@ -33,7 +33,9 @@
- {
-   int nome;
-   nome = 0;
--  if (!config_read("me", me)) {
-+  // introduced as bufix for #120660, #157259, #158412 in 1.00RC5-17;
-+  // still there since it's more appropriate for Debian systems
-+  if (!config_read("../mailname", me)) {
-     nome = 1;
-     me = "me";
-   }
---- nullmailer-1.00RC7.orig/doc/nullmailer-send.8
-+++ nullmailer-1.00RC7/doc/nullmailer-send.8
-@@ -76,16 +76,16 @@
+Index: nullmailer-1.11.dev/doc/nullmailer-send.8
+===================================================================
+--- nullmailer-1.11.dev.orig/doc/nullmailer-send.8	2012-06-16 16:36:42.000000000 +0100
++++ nullmailer-1.11.dev/doc/nullmailer-send.8	2012-08-04 16:39:21.000000000 +0100
+@@ -67,18 +67,18 @@
+ The protocol name defaults to
+ .IR smtp ,
+ and may be followed by command-line arguments for that module.
+-For example, to connect to port 2525 on your SMTP smart host,
++For example, to connect with SSL to port 2525 on your SMTP smart host,
+ which also requires SMTP authentication, use:
+ 
+ .EX
+-    smarthost.dom smtp --port=2525 --user=user --pass=pass
++    smarthost.dom smtp \-\-ssl \-\-port=2525 \-\-user=user \-\-pass=pass
+ .EE
+ 
+-If your smarthost requires LOGIN authentication instead of the default
+-PLAIN method, use:
++If your smarthost requires TLS on port 25 with LOGIN authentication
++instead of the default PLAIN method, use:
+ 
+ .EX
+-    smarthost.dom smtp --port=2525 --auth-login --user=user --pass=pass
++    smarthost.dom smtp \-\-starttls \-\-auth-login \-\-user=user \-\-pass=pass
+ .EE
+ 
  Blank lines and lines starting with a pound are ignored.
+@@ -94,18 +94,20 @@
+ will wait forever for messages to complete sending.
  .SH FILES
  .TP
 -.B /var/nullmailer/queue
@@ -50,8 +63,14 @@ exit 0
  The protocol program directory.
  .SH SEE ALSO
  nullmailer-queue(8),
---- nullmailer-1.00RC7.orig/doc/nullmailer-queue.8
-+++ nullmailer-1.00RC7/doc/nullmailer-queue.8
+ nullmailer-inject(1),
++nullmailer-smtp(8),
++nullmailer-qmqp(8),
+ mailq(1)
+Index: nullmailer-1.11.dev/doc/nullmailer-queue.8
+===================================================================
+--- nullmailer-1.11.dev.orig/doc/nullmailer-queue.8	2012-06-16 16:36:42.000000000 +0100
++++ nullmailer-1.11.dev/doc/nullmailer-queue.8	2012-08-04 15:49:00.000000000 +0100
 @@ -22,21 +22,21 @@
  .TP
  .B adminaddr
@@ -80,9 +99,20 @@ exit 0
  A pipe used to trigger
  .BR nullmailer-send
  to immediately start sending the message from the queue.
---- nullmailer-1.00RC7.orig/doc/nullmailer-inject.1
-+++ nullmailer-1.00RC7/doc/nullmailer-inject.1
-@@ -218,16 +218,16 @@
+Index: nullmailer-1.11.dev/doc/nullmailer-inject.1
+===================================================================
+--- nullmailer-1.11.dev.orig/doc/nullmailer-inject.1	2012-06-16 16:36:42.000000000 +0100
++++ nullmailer-1.11.dev/doc/nullmailer-inject.1	2012-08-04 15:49:00.000000000 +0100
+@@ -82,7 +82,7 @@
+ Address lists are expected to follow the syntax set out in RFC822.
+ The following is a simplified explanation of the syntax.
+ 
+-An address list is list of addresses seperated by commas.
++An address list is list of addresses separated by commas.
+ An individual address may have one of the following three forms:
+ .IR user@fqdn ,
+ .IR comment <user@fqdn> ,
+@@ -227,16 +227,16 @@
  and
  .BR idhost .
  Defaults to the value of the
@@ -103,7 +133,7 @@ exit 0
  .IR defaulthost .
  .TP
  .B idhost
-@@ -236,7 +236,7 @@
+@@ -245,7 +245,7 @@
  Defaults to the canonicalized value of
  .BR defaulthost .
  .TP
@@ -112,3 +142,43 @@ exit 0
  The fully-qualifiled host name of the computer running nullmailer.
  Defaults to the literal name
  .IR me .
+Index: nullmailer-1.11.dev/doc/sendmail.1
+===================================================================
+--- nullmailer-1.11.dev.orig/doc/sendmail.1	2012-06-16 16:36:42.000000000 +0100
++++ nullmailer-1.11.dev/doc/sendmail.1	2012-08-04 15:49:00.000000000 +0100
+@@ -17,8 +17,11 @@
+ interface for sending email.
+ After parsing the command-line arguments, this program executes
+ .B nullmailer-inject
+-directly.
+-See the documentation for
++directly, unless the
++.I \-bs
++option is specified in which case this program executes
++.B nullmailer-smtpd
++to inject the mail.  See the documentation for
+ .B nullmailer-inject
+ for details on how messages are reformatted and queued.
+ .SH OPTIONS
+@@ -26,6 +29,9 @@
+ .B \-B TYPE
+ .TP
+ .B \-b MODE
++ \-bm        Read mail from standard input (default)
++ \-bp        List information about mail queue
++ \-bs        Handle SMTP commands on standard input
+ .TP
+ .B \-C FILE
+ .TP
+@@ -67,9 +73,9 @@
+ Sets the envelope sender address.
+ .TP
+ .B \-r ADDRESS
+-An alternate and obsolete form of the -f flag.
++An alternate and obsolete form of the \-f flag.
+ .TP
+ .B \-t
+ Read message for recipients and ignore the command-line arguments.
+ .SH SEE ALSO
+-nullmailer-inject(1)
++nullmailer-inject(1), nullmailer-smtpd(8)

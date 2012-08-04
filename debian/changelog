@@ -1,52 +1,82 @@
-nullmailer (1:1.05-1~1+njl.2) unstable; urgency=low
+nullmailer (1:1.11-2~0.njl.0~njl60+1) squeeze-backports; urgency=low
 
-  * Non-maintainer upload.
-  * Allow co-existence of nullmailer package with other mail-transport-agents
-    for "dual queue" mail scanning setups:
-    - nullmailer package is no longer a mail-transport-agent, but it Recommends
-      nullmailer-sendmail which is;
-    - move sendmail binaries to new nullmailer-sendmail package;
-    - rename mailq to nullmailer-mailq to avoid conflict with real MTA's mailq;
-    - new package nullmailer-sendmail to provide /usr/{lib,sbin}/sendmail and
-      /usr/bin/mailq so this package can be an LSB mail-transport-agent.
-    - move dummy newaliases symlink into nullmailer-sendmail so that package
-      can be a Debian mail-transport-agent, and update man page to refer to
-      correct Policy section 11.6.
+  * Rebuild for squeeze-backports.
 
- -- Nick Leverton <nick@leverton.org>  Tue, 08 Jun 2010 10:37:54 +0100
+ -- Nick Leverton <nick@leverton.org>  Sat, 04 Aug 2012 18:27:16 +0100
 
-nullmailer (1:1.05-1~1njl.1) unstable; urgency=low
+nullmailer (1:1.11-2~0.njl.0) UNRELEASED; urgency=low
 
-  * Non-maintainer upload.
-  * Fix typo in updated initscript
+  * Add nullmailer-qstat and nullmailer-qread scripts (Closes: #682801),
+    nullmailer-qread now Suggests: perl also for speed (but works without).
+  * Add man pages for /usr/lib/nullmailer/smtp and qmqp (Closes:
+    #682800) and document usage of SSL/TLS in nullmail-send examples.
+  * FIXME TODO: reinstate the QUIT patch (Closes: #375380 again).
 
- -- Nick Leverton <nick@leverton.org>  Mon, 07 Jun 2010 11:15:27 +0100
+ -- Nick Leverton <nick@leverton.org>  Sat, 04 Aug 2012 16:40:18 +0100
 
-nullmailer (1:1.05-1~1njl.0) unstable; urgency=low
+nullmailer (1:1.11-1) unstable; urgency=low
 
-  * Non-maintainer upload.
-  * New upstream release (Closes: #570640, #583564, 359994).
-  * Update Policy from 3.7.3 to 3.8.4:
-    - README.source
+  * New upstream release
+  * Increase hardening level - note current lintian gives false positives,
+    c'mon lintian if you fink we ain't 'ard enough.
+  * Really use LOG_INFO on success (really Closes: #632015, LP:531796)
+  * Create and use a pidfile with start-stop-daemon so that we only stop,
+    at most, our own instance of nullmailer-send (Closes: 674125).
+
+ -- Nick Leverton <nick@leverton.org>  Sat, 16 Jun 2012 16:35:57 +0100
+
+nullmailer (1:1.10-1) unstable; urgency=low
+
+  * New upstream release (Closes: #271662, #540758, #359994, #583564, #540758,
+    LP:660089).  We now provide Sendmail's "-bs" functionality and therefore
+    no longer conflict with LSB.
+  * Upgrade to dh compat level 9 and dpkg 1.16 dpkg-buildflags.
+  * Update Policy to 3.9.3 (no change).
+  * Set defaultdomain from the domain part of /etc/mailname and allow it to
+    be empty, meaning "don't add a defaultdomain" (patch 12, Closes: #504184).
+  * Fix IPv6 autoconf check to #include stddef.h (patch 02, Closes: #605899).
+  * Support IPv6 address literals in debconf smarthost field (Closes: #625246) 
+    and update debian/templates with the new format.
+  * Use LOG_INFO not LOG_ERR when logging success (patch 03, Closes: #632015,
+    LP:531796).
+  * Ensure no cruft in source package using debian/clean (Closes: #643228).
+  * Use correct test for socket existence in initscript (Closes: #646355).
+  * Proof ourselves against multi-line mailname (Closes: #657773).
+  * New debconf translations: Danish (Closes: #659446).
+  * Fix patch 06 to correctly apply Return-Path when requested in resent mails.
+  * Mention helohost and sendtimeout in nullmailer.7 (patch 08).
+  * Update upstream info in debian/copyright and convert to DEP-5 format.
+  * Thanks to Harald Jenny for the 1.10 changes.
+
+ -- Nick Leverton <nick@leverton.org>  Wed, 16 May 2012 19:52:06 +0100
+
+nullmailer (1:1.05-1) unstable; urgency=low
+
+  * Ack NMUs, thankyou for your care of this package.
+  * New maintainer (Closes: #461244)
+  * New upstream release (Closes: #570640, #589899).
+  * Update Policy from 3.7.3 to 3.9.2:
     - initscript won't delete and recreate nullmailer-send trigger FIFO
       if daemon already running.  Complements --oknodo for Policy 3.8.1.
-  * Add debian/source/format ready for when lintian starts being picky.
-  * Update automake build-dep to version 1.10 for current ./configure.
   * Upgrade to debhhelper 7 + dh so that Policy upgrades become easy.
+  * Update from dpatch to quilt + source format "3.0 (quilt)".
+  * Update automake build-dep to current version for current ./configure.
   * Use CPPFLAGS instead of CFLAGS (dh 7).
   * Don't do "set -e" in initscript (Closes: #562505).
   * Add watch file (Closes: #583556).
   * Set rsyslog as default system log daemon (Closes: #526921).
   * Add 'status' support to initscript (Closes: #526813) and add Description.
+  * Use ferr instead of fout for errors (patch 05, Closes: #329970).
+  * Fix handling of null envelope sender "<>" (patch 06, Closes: #188251).
   * Send QUIT on success as well as failure, for MTAs that care about
-    strict SMTP: see RFC 5321 s3.8 (Closes: #375380).
-  * Fix handling of null envelope sender "<>" (Closes: 356356, #188251).
-  * Use ferr instead of fout for errors (Patch 05, Closes: #329970).
+    strict SMTP: see RFC 5321 s3.8 (patch 07, Closes: #375380).
   * Fix patch 02_ipv6.diff to remove reference to debian/patched (lintian).
   * Remove redundant configure options since we no longer use automake 1.4.
+  * Remove Conflicts: with suidmanager, the latter no longer exists.
+  * Fix some remaining manpage spelling and hyphenation issues (patch 01,03).
   * Override lintian moans about our permissions and suid binary.
 
- -- Nick Leverton <nick@leverton.org>  Sat, 29 May 2010 21:31:34 +0100
+ -- Nick Leverton <nick@leverton.org>  Fri, 29 Apr 2011 16:13:07 +0100
 
 nullmailer (1:1.04-1.2) unstable; urgency=low
 

@@ -14,17 +14,19 @@ esac
 exit 0
 
 @DPATCH@
-diff -u -d -r nullmailer-1.03.orig/configure.in nullmailer-1.03/configure.in
---- nullmailer-1.03.orig/configure.in	2007-07-22 14:18:18.245274645 +0100
-+++ nullmailer-1.03/configure.in	2007-07-22 14:18:52.240088523 +0100
-@@ -47,6 +47,24 @@
+Index: nullmailer-1.10/configure.in
+===================================================================
+--- nullmailer-1.10.orig/configure.in	2012-04-23 04:34:26.000000000 +0100
++++ nullmailer-1.10/configure.in	2012-05-12 17:59:14.000000000 +0100
+@@ -48,6 +48,25 @@
  dnl AC_CHECK_FUNCS(gettimeofday mkdir putenv rmdir socket)
  AC_CHECK_FUNCS(setenv srandom)
  
 +AC_MSG_CHECKING(for getaddrinfo)
 +AC_TRY_COMPILE([#include <sys/types.h>
 +#include <sys/socket.h>
-+#include <netdb.h>], [getaddrinfo(NULL, NULL, NULL, NULL)], has_getaddrinfo=yes, has_getaddrinfo=no)
++#include <netdb.h>
++#include <stddef.h>], [getaddrinfo(NULL, NULL, NULL, NULL)], has_getaddrinfo=yes, has_getaddrinfo=no)
 +if test "$has_getaddrinfo" = yes; then
 +  AC_MSG_RESULT(yes)
 +else
@@ -42,9 +44,10 @@ diff -u -d -r nullmailer-1.03.orig/configure.in nullmailer-1.03/configure.in
  AC_DEFINE(BUFSIZE, 4096, [Generic buffer size])
  AM_CONDITIONAL(FDBUF_NO_MYSTRING, false)
  
-diff -u -d -r nullmailer-1.03.orig/lib/tcpconnect.cc nullmailer-1.03/lib/tcpconnect.cc
---- nullmailer-1.03.orig/lib/tcpconnect.cc	2007-07-22 14:18:18.245274645 +0100
-+++ nullmailer-1.03/lib/tcpconnect.cc	2007-07-22 14:19:20.735741332 +0100
+Index: nullmailer-1.10/lib/tcpconnect.cc
+===================================================================
+--- nullmailer-1.10.orig/lib/tcpconnect.cc	2012-03-01 02:44:06.000000000 +0000
++++ nullmailer-1.10/lib/tcpconnect.cc	2012-05-12 17:59:14.000000000 +0100
 @@ -28,7 +28,11 @@
  #include <netinet/in.h>
  #include "errcodes.h"
@@ -68,7 +71,7 @@ diff -u -d -r nullmailer-1.03.orig/lib/tcpconnect.cc nullmailer-1.03/lib/tcpconn
 +#ifdef HAVE_GETADDRINFO
 +  struct addrinfo req, *res, *orig_res;
 +  const char *service = itoa(port, 6);
-+  
++
 +  memset(&req, 0, sizeof(req));
 +  req.ai_flags = AI_NUMERICSERV;
 +  req.ai_socktype = SOCK_STREAM;
@@ -80,7 +83,7 @@ diff -u -d -r nullmailer-1.03.orig/lib/tcpconnect.cc nullmailer-1.03/lib/tcpconn
 +#endif
    if(e) return e;
 +#ifdef HAVE_GETADDRINFO
-+  int s;
++  int s = -1;
 +  orig_res = res;
 +
 +  for (; res; res = res->ai_next ) {

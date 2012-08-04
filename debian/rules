@@ -9,44 +9,35 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-include /usr/share/dpatch/dpatch.make
-
-# Following stanzas from Sandro Tosi and tyler @ blogspot for dpatch + dh,
-# further modded for autotools-dev.  Many thanks.
-# http://sandrotosi.blogspot.com/2008/08/minimal-debianrules-for-dh7dpatch.html
-
-build: patch-stamp
-
-clean: unpatch
+export DEB_LDFLAGS_MAINT_APPEND += -Wl,-z,defs -Wl,--as-needed
+export DEB_BUILD_MAINT_OPTIONS ?= hardening=+all
 
 %:
-	dh --with autotools-dev $@
+	dh $@ --with autotools-dev
 
-# dh_prep replaces dh_clean -k in debhelper 7
 override_dh_prep:
 	dh_prep
 	debconf-updatepo
 
 override_dh_auto_configure:
-	# Add here commands to configure the package.
-	CPPFLAGS="$(CPPFLAGS) -Wl,-z,defs" dh_auto_configure -- --libexecdir=/usr/lib --localstatedir=/var/spool
-
-# override_dh_build:
-	#dh_build
-	#docbook-to-man debian/nullmailer.sgml > nullmailer.1
+	dh_auto_configure -- --libexecdir=/usr/lib --localstatedir=/var/spool --enable-tls
 
 PKGDIR = $(CURDIR)/debian/nullmailer
-SPOOLDIR = $(CURDIR)/debian/nullmailer/var/spool/nullmailer
+SPOOLDIR = $(PKGDIR)/var/spool/nullmailer
 
-override_dh_install:
-	dh_install -pnullmailer -Xsendmail
-	dh_install --remaining-packages
-	mv $(PKGDIR)/usr/bin/mailq $(PKGDIR)/usr/bin/nullmailer-mailq
+# remove trigger from the .deb (Policy 3.8.4 s10.6) - it must be created in initscript
+override_dh_auto_install:
+	dh_auto_install
+	$(RM) $(SPOOLDIR)/trigger
+
+# mutter, I thought dh_installchangelogs Did The Right Thing with GNU-style NEWS changelogs
+override_dh_installchangelogs:
+	dh_installchangelogs -k NEWS
 
 override_dh_fixperms:
 	dh_fixperms
-	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
-	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
+	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
+	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
 	chown -R mail:root $(SPOOLDIR)
 	chmod 0755 $(SPOOLDIR)
 	chmod 0750 $(SPOOLDIR)/queue $(SPOOLDIR)/tmp

@@ -1,27 +1,18 @@
-#! /bin/sh -e
-if [ $# -ne 1 ]; then 
-    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-    exit 1  
-fi
-case "$1" in 
-    -patch) patch -f --no-backup-if-mismatch -p1 < $0;;
-    -unpatch) patch -f --no-backup-if-mismatch -R -p1 < $0;;
-    *)
-        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
-        exit 1;;
-esac
+Description: nullmailer didn't handle null return paths "<>" at all.
+Forwarded: nullmailer at lists.em.ca
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=188251
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=356356
+Author: Nick Leverton <nick@leverton.org>
 
-exit 0
-
-@DPATCH@
-diff -urw nullmailer-1.02/lib/address.cc nullmailer-dbg/lib/address.cc
---- nullmailer-1.02/lib/address.cc	2005-11-10 16:11:12.000000000 +0000
-+++ nullmailer-dbg/lib/address.cc	2006-06-25 16:01:04.000000000 +0100
-@@ -518,6 +518,17 @@
+Index: nullmailer-1.10/lib/address.cc
+===================================================================
+--- nullmailer-1.10.orig/lib/address.cc	2012-03-01 02:44:18.000000000 +0000
++++ nullmailer-1.10/lib/address.cc	2012-05-12 18:02:05.000000000 +0100
+@@ -523,6 +523,17 @@
    RETURN(node, "<" + r2.str + ">" + comment, "", r2.addr);
  }
  
-+RULE(null_addr) 
++RULE(null_addr)
 +{
 +  ENTER("LABRACKET RABRACKET");
 +  mystring comment;
@@ -34,8 +25,8 @@ diff -urw nullmailer-1.02/lib/address.cc nullmailer-dbg/lib/address.cc
 +
  RULE(phrase)
  {
-   ENTER("word *word");
-@@ -646,7 +657,8 @@
+   ENTER("word *(word / PERIOD / CFWS)");
+@@ -660,7 +671,8 @@
    anode* tokenlist = tokenize(line.c_str());
    if(!tokenlist)
      return false;
@@ -45,10 +36,11 @@ diff -urw nullmailer-1.02/lib/address.cc nullmailer-dbg/lib/address.cc
    del_tokens(tokenlist);
    if(r) {
      line = r.str;
-diff -urw nullmailer-1.02/src/inject.cc nullmailer-dbg/src/inject.cc
---- nullmailer-1.02/src/inject.cc	2005-11-10 16:11:12.000000000 +0000
-+++ nullmailer-dbg/src/inject.cc	2006-06-25 15:59:28.000000000 +0100
-@@ -100,6 +100,7 @@
+Index: nullmailer-1.10/src/inject.cc
+===================================================================
+--- nullmailer-1.10.orig/src/inject.cc	2012-05-12 18:02:05.000000000 +0100
++++ nullmailer-1.10/src/inject.cc	2012-05-12 18:02:05.000000000 +0100
+@@ -110,6 +110,7 @@
  ///////////////////////////////////////////////////////////////////////////////
  static slist recipients;
  static mystring sender;
@@ -56,7 +48,7 @@ diff -urw nullmailer-1.02/src/inject.cc nullmailer-dbg/src/inject.cc
  static bool use_header_recips = true;
  
  void parse_recips(const mystring& list)
-@@ -126,6 +127,9 @@
+@@ -136,6 +137,9 @@
  bool parse_sender(const mystring& list)
  {
    int end = list.find_first('\n');
@@ -66,29 +58,27 @@ diff -urw nullmailer-1.02/src/inject.cc nullmailer-dbg/src/inject.cc
    if(end > 0 && list.find_first('\n', end+1) < 0) {
      sender = list.sub(0, end);
      return true;
-@@ -165,7 +169,8 @@
+@@ -175,7 +179,6 @@
  	return true;
        if(is_resent) {
  	if(!header_is_resent) {
 -	  sender = "";
-+	  // if(use_header_sender)	// There is no Resent-Return-Path
-+	  //   sender = "";
  	  if(use_header_recips)
  	    recipients.empty();
  	}
-@@ -187,8 +192,10 @@
+@@ -197,8 +200,10 @@
  	      parse_recips(list);
  	  }
  	  else if(is_sender) {
 -	    if(is_resent == header_is_resent && !sender)
-+	    if(is_resent == header_is_resent && use_header_sender) {
++	    if(use_header_sender) {	// There is no Resent-Return-Path
  	      parse_sender(list);
 +	      use_header_sender = 0;
 +	    }
  	  }
  	}
        }
-@@ -282,7 +289,7 @@
+@@ -296,7 +301,7 @@
    if(!shost) shost = host;
    canonicalize(shost);
    
@@ -97,18 +87,19 @@ diff -urw nullmailer-1.02/src/inject.cc nullmailer-dbg/src/inject.cc
      sender = suser + "@" + shost;
  }
  
-@@ -547,6 +554,7 @@
-       fout << "nullmailer-inject: Invalid sender address: " << o_from << endl;
+@@ -552,6 +557,7 @@
+       ferr << "nullmailer-inject: Invalid sender address: " << o_from << endl;
        return false;
      }
 +    use_header_sender = false;
    }
    use_header_recips = (use_recips != use_args);
    if(use_recips == use_header)
-diff -urw nullmailer-1.02/src/queue.cc nullmailer-dbg/src/queue.cc
---- nullmailer-1.02/src/queue.cc	2005-11-10 16:11:12.000000000 +0000
-+++ nullmailer-dbg/src/queue.cc	2006-06-25 15:45:07.000000000 +0100
-@@ -94,9 +94,9 @@
+Index: nullmailer-1.10/src/queue.cc
+===================================================================
+--- nullmailer-1.10.orig/src/queue.cc	2012-03-01 02:44:06.000000000 +0000
++++ nullmailer-1.10/src/queue.cc	2012-05-12 18:02:05.000000000 +0100
+@@ -93,9 +93,9 @@
  bool copyenv(fdobuf& out)
  {
    mystring str;

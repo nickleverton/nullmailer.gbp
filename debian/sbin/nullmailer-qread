@@ -1,0 +1,42 @@
+#!/bin/sh
+
+cd /var/spool/nullmailer 2>/dev/null || { echo `basename $0`": no queue dir!"; exit 1; }
+
+if [ "`which perl`" ]; then
+	find queue -type f | perl -e '
+	use warnings; use strict;
+	use POSIX qw/strftime/;
+	foreach my $file (<>) {
+		chomp $file;
+		open(MSG, "<", $file) or print(STDERR "$file: $!"), next;
+		stat MSG;
+		chomp( my $from = <MSG>);
+		my @to;
+		while (<MSG>) {
+			chomp;
+			last unless length;
+			push @to, $_;
+		}
+		my $pos = tell MSG;
+		(my $id = $file) =~ s:.*/::;
+		my $time = strftime("%d %b %Y %T %z", gmtime((stat _)[10]) );
+		my $size = (stat _)[7] - $pos;
+		print "$time\t#$id\t$size\t<$from>\n";
+		my $remote = "remote";
+		map { print "\t$remote\t$_\n"; $remote = "" } @to;
+	}'
+
+else
+
+	# alternative shellscript implementation, slower and different in output:
+	find queue -type f | while read F; do
+		FROM=$( head -1 "$F" );
+		TO=$( sed -n -e '2,/^$/p' "$F" )
+		TIME=$( stat -c '%z' $F | sed 's/\.[0-9]\+\>//' )
+		SIZE=$( stat -c '%s' $F )
+		FILE=${F##*/}
+		echo "$TIME   #$FILE  $SIZE  <$FROM>
+	"$'\tremote\t'"$TO"
+	done
+
+fi

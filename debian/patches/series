@@ -3,5 +3,7 @@
 03_syslog.diff
 04_autoconf.diff
 05_errors_on_stderr.diff
-90_nullenvsender.diff
-93_sendquit.diff
+06_nullenvsender.diff
+07_sendquit.diff
+08_manpages.diff
+12_allow_no_dots.diff
