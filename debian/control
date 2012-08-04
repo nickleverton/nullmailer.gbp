@@ -10,12 +10,28 @@ Homepage: http://untroubled.org/nullmailer/
 Package: nullmailer
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base
-Recommends: rsyslog | system-log-daemon
+Recommends: rsyslog | system-log-daemon, nullmailer-sendmail
 Suggests: perl
-Conflicts: mail-transport-agent
-Provides: mail-transport-agent
-Replaces: mail-transport-agent
 Description: simple relay-only mail transport agent
  Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
  smart relays. It is designed to be simple to configure and especially
  useful on slave machines and in chroots.
+ .
+ This package omits the /usr/lib/sendmail binary and does not Provide:
+ mail-transport-agent, so that it can be installed on the same
+ machine as a full MTA.  To provide a mail-transport-agent, install
+ nullmailer-sendmail as well.
+
+Package: nullmailer-sendmail
+Architecture: any
+Depends: nullmailer (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: mail-transport-agent
+Provides: mail-transport-agent
+Replaces: mail-transport-agent
+Description: simple relay-only mail transport agent - sendmail binary
+ Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
+ smart relays. It is designed to be simple to configure and especially
+ useful on slave machines and in chroots.
+ .
+ This package includes the /usr/{sbin,lib}/sendmail binary and Provides:
+ mail-transport-agent when installed in conjunction with nullmailer.

@@ -1,16 +1,21 @@
-nullmailer (1:1.11-2~0.njl.0~njl60+1) squeeze-backports; urgency=low
-
-  * Rebuild for squeeze-backports.
-
- -- Nick Leverton <nick@leverton.org>  Sat, 04 Aug 2012 18:27:16 +0100
-
-nullmailer (1:1.11-2~0.njl.0) UNRELEASED; urgency=low
+nullmailer (1:1.11-2~1.njl.0) UNRELEASED; urgency=low
 
   * Add nullmailer-qstat and nullmailer-qread scripts (Closes: #682801),
     nullmailer-qread now Suggests: perl also for speed (but works without).
   * Add man pages for /usr/lib/nullmailer/smtp and qmqp (Closes:
     #682800) and document usage of SSL/TLS in nullmail-send examples.
   * FIXME TODO: reinstate the QUIT patch (Closes: #375380 again).
+  * Allow co-existence of nullmailer package with other mail-transport-agents
+    for "dual queue" mail scanning setups:
+    - nullmailer package is no longer a mail-transport-agent, but it Recommends
+      nullmailer-sendmail which is;
+    - move sendmail binaries to new nullmailer-sendmail package;
+    - rename mailq to nullmailer-mailq to avoid conflict with real MTA's mailq;
+    - new package nullmailer-sendmail to provide /usr/{lib,sbin}/sendmail and
+      /usr/bin/mailq so this package can be an LSB mail-transport-agent.
+    - move dummy newaliases symlink into nullmailer-sendmail so that package
+      can be a Debian mail-transport-agent, and FIXME TODO: update man page to refer to
+      correct Policy section 11.6.
 
  -- Nick Leverton <nick@leverton.org>  Sat, 04 Aug 2012 16:40:18 +0100
 

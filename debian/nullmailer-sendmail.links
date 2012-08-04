@@ -1,0 +1,4 @@
+usr/sbin/sendmail usr/lib/sendmail
+bin/true usr/bin/newaliases
+usr/bin/nullmailer-mailq usr/bin/mailq
+usr/share/man/man1/nullmailer-mailq.1.gz usr/share/man/man1/mailq.1.gz

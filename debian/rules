@@ -22,13 +22,18 @@ override_dh_prep:
 override_dh_auto_configure:
 	dh_auto_configure -- --libexecdir=/usr/lib --localstatedir=/var/spool --enable-tls
 
+INSTALLDIR = $(CURDIR)/debian/tmp
 PKGDIR = $(CURDIR)/debian/nullmailer
 SPOOLDIR = $(PKGDIR)/var/spool/nullmailer
 
-# remove trigger from the .deb (Policy 3.8.4 s10.6) - it must be created in initscript
 override_dh_auto_install:
-	dh_auto_install
-	$(RM) $(SPOOLDIR)/trigger
+	dh_install -pnullmailer -Xsendmail -Xnewaliases
+	dh_install --remaining-packages
+	mv $(INSTALLDIR)/usr/bin/mailq $(INSTALLDIR)/usr/bin/nullmailer-mailq
+	mv $(INSTALLDIR)/usr/share/man/man1/mailq $(INSTALLDIR)/usr/share/man/man1/nullmailer-mailq
+	# Remove trigger from the .deb (Policy 3.8.4 s10.6) - it must be created in initscript.
+	# v1.11-2: In fact we don't remove trigger any more, just don't install it from $INSTALLDIR
+	# $(RM) $(SPOOLDIR)/trigger
 
 # mutter, I thought dh_installchangelogs Did The Right Thing with GNU-style NEWS changelogs
 override_dh_installchangelogs:
@@ -36,8 +41,9 @@ override_dh_installchangelogs:
 
 override_dh_fixperms:
 	dh_fixperms
-	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
-	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/mailq
+	chown mail $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
+	chmod 4755 $(PKGDIR)/usr/sbin/nullmailer-queue $(PKGDIR)/usr/bin/nullmailer-mailq
 	chown -R mail:root $(SPOOLDIR)
 	chmod 0755 $(SPOOLDIR)
 	chmod 0750 $(SPOOLDIR)/queue $(SPOOLDIR)/tmp
+
