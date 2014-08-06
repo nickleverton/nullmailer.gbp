@@ -25,7 +25,7 @@ _Description: Smarthosts:
  .
    smarthost
    smarthost smtp --port=10025
-   mail.example.com smtp --starttls --user=foo --pass=bar
+   mail.example.com smtp --user=foo --pass=bar
    192.168.1.254 qmqp 
    [fe80::5054:ff:fef4:ef81] smtp 
 

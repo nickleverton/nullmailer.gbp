@@ -1,23 +1,30 @@
-nullmailer (1:1.11-2~1.njl.0) UNRELEASED; urgency=low
+nullmailer (1:1.13-1~0njl0) UNRELEASED; urgency=low
 
-  * Add nullmailer-qstat and nullmailer-qread scripts (Closes: #682801),
-    nullmailer-qread now Suggests: perl also for speed (but works without).
-  * Add man pages for /usr/lib/nullmailer/smtp and qmqp (Closes:
-    #682800) and document usage of SSL/TLS in nullmail-send examples.
-  * FIXME TODO: reinstate the QUIT patch (Closes: #375380 again).
-  * Allow co-existence of nullmailer package with other mail-transport-agents
-    for "dual queue" mail scanning setups:
-    - nullmailer package is no longer a mail-transport-agent, but it Recommends
-      nullmailer-sendmail which is;
-    - move sendmail binaries to new nullmailer-sendmail package;
-    - rename mailq to nullmailer-mailq to avoid conflict with real MTA's mailq;
-    - new package nullmailer-sendmail to provide /usr/{lib,sbin}/sendmail and
-      /usr/bin/mailq so this package can be an LSB mail-transport-agent.
-    - move dummy newaliases symlink into nullmailer-sendmail so that package
-      can be a Debian mail-transport-agent, and FIXME TODO: update man page to refer to
-      correct Policy section 11.6.
+  * Ack NMU, thankyou for your help with this package.
+  * New upstream release (Closes: #329192, LP: #236715 by adding back-off).
+  * Remove patch 07_sendquit.diff as nullmailer now does this itself.
+  * B-D on automake and dh-autoreconf rather than automake1.11 and
+    autotools-dev (new patch 13_fix_automake.diff).
+  * B-D on libgnutls28-dev (Closes: #752308) | libgnutls-dev
+  * Use pidofproc -p $PIDFILE in our initscript rather than just pidof
+    (Closes: #687827, thanks to Lorenz Schori for the fix).
+  * Update Standards-Version to 3.9.5 (no changes required).
+  * TODO: Add/update docs (Closes: TBA)
 
- -- Nick Leverton <nick@leverton.org>  Sat, 04 Aug 2012 16:40:18 +0100
+ -- Nick Leverton <nick@leverton.org>  Wed, 06 Aug 2014 22:31:34 +0100
+
+nullmailer (1:1.11-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/control: Switch to automake1.11. (Closes: #724423)
+
+ -- Eric Dorland <eric@debian.org>  Sun, 16 Feb 2014 16:16:57 -0500
+
+nullmailer (1:1.11-2) unstable; urgency=low
+
+  * Make 'remotes' not world-readable (Closes: #684619)
+
+ -- Nick Leverton <nick@leverton.org>  Tue, 21 Aug 2012 09:01:38 +0100
 
 nullmailer (1:1.11-1) unstable; urgency=low
 

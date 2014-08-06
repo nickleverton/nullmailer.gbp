@@ -1,7 +1,0 @@
-#!/bin/sh
-
-cd /var/spool/nullmailer 2>/dev/null || { echo `basename $0`": no queue dir!"; exit 1; }
-messfiles=`ls queue | wc -l`
-todofiles=`ls tmp | wc -l`
-echo messages in queue: $messfiles
-echo messages in queue but not yet preprocessed: $todofiles
