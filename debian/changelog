@@ -1,3 +1,13 @@
+nullmailer (1:2.1-7~bpo9+1) stretch-backports; urgency=medium
+
+  [ David Bremner ]
+  * Rebuild for stretch-backports.
+
+  [ Felix Lechner ]
+  * Set Build-Depends: debhelper (>= 10.2.5)
+
+ -- David Bremner <bremner@debian.org>  Wed, 25 Jul 2018 11:24:01 +0800
+
 nullmailer (1:2.1-7) unstable; urgency=medium
 
   * upload to unstable
