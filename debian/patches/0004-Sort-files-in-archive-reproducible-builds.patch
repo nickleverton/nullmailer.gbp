@@ -3,11 +3,12 @@ Date: Tue, 11 Jul 2017 22:25:43 -0300
 Subject: Sort files in archive (reproducible builds)
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 
-U29ydCBmaWxlcyB3aGVuIHVzaW5nIG1lcmdlbGliIHRvIGNyZWF0ZSBsaWJudWxsbWFpbGVyLmEs
-IHRvIGdldApyZXByb2R1Y2libGUgYnVpbGQKCkF1dGhvcjogQWxleGlzIEJpZW52ZW7DvGUgPHBh
-ZG9AcGFzc29pcmUuZnI+Cg==
+Sort files when using mergelib to create libnullmailer.a, to get
+reproducible build
+
+Author: Alexis Bienvenüe <pado@passoire.fr>
 ---
  lib/mergelib.sh | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

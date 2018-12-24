@@ -19,7 +19,7 @@ Last-Update: 2017-08-31
  4 files changed, 19 insertions(+), 12 deletions(-)
 
 diff --git a/doc/nullmailer-inject.1 b/doc/nullmailer-inject.1
-index 6acae7b..26a7c1c 100644
+index f000e9e..3e7ad2d 100644
 --- a/doc/nullmailer-inject.1
 +++ b/doc/nullmailer-inject.1
 @@ -227,16 +227,16 @@ including
@@ -73,7 +73,7 @@ index 291ea65..2cdc890 100644
  "somebody@localhost" and have it go somewhere sensible instead of
  being bounced by your relay host. To send to multiple addresses, put
 diff --git a/lib/hostname.cc b/lib/hostname.cc
-index d50022e..55ff04d 100644
+index 5a7bde2..ac94ffc 100644
 --- a/lib/hostname.cc
 +++ b/lib/hostname.cc
 @@ -24,6 +24,7 @@
@@ -100,10 +100,10 @@ index d50022e..55ff04d 100644
      me = "me";
    }
 diff --git a/test/functions.in b/test/functions.in
-index 8df4e3d..8636698 100644
+index 0d40ced..951b6cc 100644
 --- a/test/functions.in
 +++ b/test/functions.in
-@@ -130,6 +130,6 @@ splitblank() {
+@@ -150,6 +150,6 @@ EOF
  
  export PATH=/bin:/usr/bin:/usr/local/bin
  rm -f $SYSCONFDIR/*

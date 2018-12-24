@@ -34,6 +34,10 @@ override_dh_auto_install:
 override_dh_installchangelogs:
 	dh_installchangelogs -k NEWS
 
+override_dh_autoreconf:
+	touch ChangeLog
+	dh_autoreconf
+
 # ensure smooth upgrade from previous stop / start style maintscripts
 override_dh_systemd_start:
 	dh_systemd_start --no-restart-after-upgrade

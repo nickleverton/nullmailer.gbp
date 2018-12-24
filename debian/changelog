@@ -1,3 +1,34 @@
+nullmailer (1:2.2-3) unstable; urgency=medium
+
+  * disable all smtp-auth tests. There is a second race condition that I
+    can't figure out at the moment (Closes: #917197).
+
+ -- David Bremner <bremner@debian.org>  Tue, 25 Dec 2018 08:25:38 +0900
+
+nullmailer (1:2.2-2) unstable; urgency=medium
+
+  * Do not delete smtp-response from server process in tests (Closes:
+    #916092) (hopefully).
+
+ -- David Bremner <bremner@debian.org>  Sun, 23 Dec 2018 15:57:13 +0900
+
+nullmailer (1:2.2-1) unstable; urgency=medium
+
+  * Update to new upstream version 2.2.
+    - Stop generating bounces for rejected bounces
+    - Treat authentication failure as message rejection
+    - Use username as fallback for full name
+    - Fix incompatibility with GnuTLS 3.6
+
+ -- David Bremner <bremner@debian.org>  Sun, 09 Dec 2018 17:22:01 -0400
+
+nullmailer (1:2.1-8) unstable; urgency=medium
+
+  * Disable DNS using test. Fix "FTBFS: Test failure", thanks to Daniel
+    Schepler (Closes: #912047).
+
+ -- David Bremner <bremner@debian.org>  Wed, 31 Oct 2018 09:23:34 -0300
+
 nullmailer (1:2.1-7) unstable; urgency=medium
 
   * upload to unstable
