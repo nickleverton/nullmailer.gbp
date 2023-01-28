@@ -1,0 +1,25 @@
+From: David Bremner <david@tethera.net>
+Date: Thu, 26 May 2022 10:45:28 -0300
+Subject: fix loop bound bug caused by integer type conversion
+
+If output.length() < 5, the right hand side evaluates to a negative
+number. C type conversion rules say this should be converted to a
+(large) unsigned integer, which makes the loop run past the end of the
+string. Transform subtraction into addition to avoid negative numbers.
+---
+ src/send.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/send.cc b/src/send.cc
+index 95f8400..199841e 100644
+--- a/src/send.cc
++++ b/src/send.cc
+@@ -319,7 +319,7 @@ static void parse_output(const mystring& output, const remote& remote, mystring&
+   diag += output.strip();
+   diag.subst('\n', '/');
+   status = "5.0.0";
+-  for (unsigned i = 0; i < output.length()-5; i++)
++  for (unsigned i = 0; i+5 < output.length(); i++)
+     if (isdigit(output[i])
+         && output[i+1] == '.'
+         && isdigit(output[i+2])
