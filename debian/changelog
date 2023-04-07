@@ -1,7 +1,146 @@
-nullmailer (1:1.13-1~0njl0) UNRELEASED; urgency=low
+nullmailer (1:2.1-7~njl9+2) stretch-backports; urgency=medium
+
+  * Rebuild for stretch-backports.
+  * Allow co-existence of nullmailer package with other mail-transport-agents
+    for "dual queue" mail scanning setups:
+    - nullmailer package is no longer a mail-transport-agent, but it Recommends
+      nullmailer-sendmail which is;
+    - move sendmail binaries to new nullmailer-sendmail package;
+    - rename mailq to nullmailer-mailq to avoid conflict with real MTA's mailq;
+    - new package nullmailer-sendmail to provide /usr/{lib,sbin}/sendmail and
+      /usr/bin/mailq so this package can be an LSB mail-transport-agent.
+    - move dummy newaliases symlink into nullmailer-sendmail so that package
+      can be a Debian mail-transport-agent, and update man page to refer to
+      correct Policy section 11.6.
+
+ -- Nick Leverton <nick@leverton.org>  Sat, 08 Apr 2023 00:44:51 +0100
+
+nullmailer (1:2.1-7~bpo9+1) stretch-backports; urgency=medium
+
+  [ David Bremner ]
+  * Rebuild for stretch-backports.
+
+  [ Felix Lechner ]
+  * Set Build-Depends: debhelper (>= 10.2.5)
+
+ -- David Bremner <bremner@debian.org>  Wed, 25 Jul 2018 11:24:01 +0800
+
+nullmailer (1:2.1-7) unstable; urgency=medium
+
+  * upload to unstable
+
+ -- David Bremner <bremner@debian.org>  Fri, 16 Mar 2018 22:48:17 -0300
+
+nullmailer (1:2.1-6) experimental; urgency=medium
+
+  [ David Bremner]
+  * Drop "Recommends: rsyslog | system-log-daemon"; a typical user for
+    nullmailer is probably in minimizing installed packages. Logging is
+    available via the systemd journal.
+  * Replace "Priority: extra" with "Priority: optional"
+  * Assert conformance with standards version 4.1.2
+  * Restore /etc/init.d/nullmailer, drop dependency on systemd-sysv
+   (Closes: #886121, #885537).
+
+  [ Felix Lechner ]
+  * Removed patch fixing protocol test for TLS (was fixed in 2.1)
+  * Re-enabled patch avoid race conditions in tests
+  * Changed watch file to Github
+
+ -- David Bremner <bremner@debian.org>  Sat, 27 Jan 2018 12:06:09 -0400
+
+nullmailer (1:2.1-5) unstable; urgency=medium
+
+  * add SyslogFacility=mail to nullmailer.service; with an appropriately
+    configured syslog (e.g. rsyslog) this will also log to /var/log/mail
+    (Closes: #885131).
+
+ -- David Bremner <bremner@debian.org>  Sun, 24 Dec 2017 10:44:20 -0400
+
+nullmailer (1:2.1-4) unstable; urgency=medium
+
+  * Add dependency on systemd-sysv (Closes: #884980).
+
+ -- David Bremner <bremner@debian.org>  Fri, 22 Dec 2017 08:16:41 -0400
+
+nullmailer (1:2.1-3) unstable; urgency=medium
+
+  * Document removal of undocumented option syntax (Closes: #884766).
+  * Install NEWS.Debian
+
+ -- David Bremner <bremner@debian.org>  Tue, 19 Dec 2017 23:24:56 -0400
+
+nullmailer (1:2.1-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- David Bremner <bremner@debian.org>  Sun, 17 Dec 2017 07:47:49 -0400
+
+nullmailer (1:2.1-1) experimental; urgency=medium
+
+  * New upstream release
+  * drop 0007-Fix-datatypes-for-64-bit-big-endian-architectures.patch, now upstream
+  * drop 0001-Remove-race-conditions-from-tests.patch, partially
+    upstreamed version seems to be enough
+
+ -- David Bremner <bremner@debian.org>  Sat, 11 Nov 2017 08:46:16 -0400
+
+nullmailer (1:2.0-3) experimental; urgency=medium
+
+  * New patch from Felix Lechner to fix 32/64 bit problem (cli) on s390x
+
+ -- David Bremner <bremner@debian.org>  Tue, 10 Oct 2017 08:09:16 -0300
+
+nullmailer (1:2.0-2) experimental; urgency=medium
+
+  * Update patch for test suite race-conditions to use 'wait' instead of
+    'sleep'
+
+ -- David Bremner <bremner@debian.org>  Sat, 07 Oct 2017 08:11:59 -0300
+
+nullmailer (1:2.0-1) experimental; urgency=medium
+
+  * New upstream version
+  * New maintainer (Closes: #857248)
+  * Bug fix: "New upstream version (2.0) resolves various bugs", thanks to
+    David R. Hedges (Closes: #826026).
+  * Bug fix: "nullmailer ignores permanent SMTP errors", thanks to Roy
+    Hills (Closes: #329192).
+  * Now provides option to set system wide envelope-from address (Closes: #757690).
+  * Now logs (via systemd) start/stop of daemon (Closes: #432637).
+  * Documentation for nullmailer-send is updated (Closes: #709250).
+  * Drop support for sysvinit, due to dropping --daemon divergence from upstream
+  * Switch to debhelper compat level 10
+  * Assert compliance with policy 4.1.0
+
+ -- David Bremner <bremner@debian.org>  Sat, 23 Sep 2017 23:08:51 -0300
+
+nullmailer (1:1.13-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Do not keep relayhost data in debconf database longer than
+    strictly needed. (Closes: #831813)
+
+ -- Christian Hofstaedtler <zeha@debian.org>  Sun, 31 Jul 2016 20:57:13 +0000
+
+nullmailer (1:1.13-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+  [ Alexis Bienvenüe ]
+  * Deterministic file order in archives. (Closes: #820661)
+
+  [ Christian Hofstaedtler ]
+  * Bump Standards-Version to 3.9.8.
+  * Add native systemd units, based on initial patch supplied
+    by Viktar Vauchkevich. (Closes: #760041)
+
+ -- Christian Hofstaedtler <zeha@debian.org>  Wed, 13 Jul 2016 01:15:46 +0200
+
+nullmailer (1:1.13-1) unstable; urgency=low
 
   * Ack NMU, thankyou for your help with this package.
-  * New upstream release (Closes: #329192, LP: #236715 by adding back-off).
+  * New upstream release (Closes: #757221, LP: #236715 by adding back-off).
   * Remove patch 07_sendquit.diff as nullmailer now does this itself.
   * B-D on automake and dh-autoreconf rather than automake1.11 and
     autotools-dev (new patch 13_fix_automake.diff).
@@ -9,9 +148,9 @@ nullmailer (1:1.13-1~0njl0) UNRELEASED; urgency=low
   * Use pidofproc -p $PIDFILE in our initscript rather than just pidof
     (Closes: #687827, thanks to Lorenz Schori for the fix).
   * Update Standards-Version to 3.9.5 (no changes required).
-  * TODO: Add/update docs (Closes: TBA)
+  * Add documentation for the smtp, qmqp and smtpd modules (Closes: #682800).
 
- -- Nick Leverton <nick@leverton.org>  Wed, 06 Aug 2014 22:31:34 +0100
+ -- Nick Leverton <nick@leverton.org>  Thu, 07 Aug 2014 22:57:59 +0100
 
 nullmailer (1:1.11-2.1) unstable; urgency=medium
 

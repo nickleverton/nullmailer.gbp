@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 2012  Bruce Guenter <bruce@untroubled.org>
+// Copyright (C) 2017  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,7 +30,9 @@
 #include "fdbuf/tlsobuf.h"
 
 int tls_insecure = false;
+int tls_anon_auth = false;
 const char* tls_x509certfile = NULL;
+const char* tls_x509keyfile = NULL;
 const char* tls_x509cafile = NULL;
 const char* tls_x509crlfile = NULL;
 int tls_x509derfmt = false;
@@ -75,7 +77,7 @@ static int cert_verify(gnutls_session_t session)
 
 static gnutls_session_t tls_session;
 
-void tls_init(const char* remote)
+void tls_cert_auth_init(const char* remote)
 {
   gnutls_certificate_credentials_t creds;
   gnutls_wrap(gnutls_global_init(),
@@ -84,8 +86,13 @@ void tls_init(const char* remote)
 	      "Error allocating TLS certificate");
   gnutls_wrap(gnutls_init(&tls_session, GNUTLS_CLIENT),
 	      "Error creating TLS session");
+#ifdef HAVE_GNUTLS_PRIORITY_SET_DIRECT
   gnutls_wrap(gnutls_priority_set_direct(tls_session, "NORMAL", NULL),
 	      "Error setting TLS options");
+#else
+  gnutls_wrap(gnutls_set_default_priority(tls_session),
+	      "Error setting TLS options");
+#endif
   gnutls_wrap(gnutls_credentials_set(tls_session, GNUTLS_CRD_CERTIFICATE, creds),
 	      "Error setting TLS credentials");
   gnutls_wrap(gnutls_server_name_set(tls_session, GNUTLS_NAME_DNS, remote, strlen(remote)),
@@ -97,8 +104,10 @@ void tls_init(const char* remote)
   gnutls_certificate_set_verify_flags(creds, 0);
 
   gnutls_x509_crt_fmt_t x509fmt = tls_x509derfmt ? GNUTLS_X509_FMT_DER : GNUTLS_X509_FMT_PEM;
+  if (tls_x509keyfile == NULL)
+    tls_x509keyfile = tls_x509certfile;
   if (tls_x509certfile != NULL)
-    gnutls_wrap(gnutls_certificate_set_x509_key_file(creds, tls_x509certfile, tls_x509certfile, x509fmt),
+    gnutls_wrap(gnutls_certificate_set_x509_key_file(creds, tls_x509certfile, tls_x509keyfile, x509fmt),
 		"Error setting SSL/TLS X.509 client certificate");
   if (tls_x509cafile == NULL && access(DEFAULT_CA_FILE, R_OK) == 0)
     tls_x509cafile = DEFAULT_CA_FILE;
@@ -110,11 +119,49 @@ void tls_init(const char* remote)
 		"Error loading SSL/TLS X.509 CRL file");
 }
 
+void tls_anon_auth_init(const char* remote)
+{
+  gnutls_anon_client_credentials_t anon_creds;
+
+  gnutls_wrap(gnutls_global_init(),
+	      "Error initializing TLS library");
+  gnutls_wrap(gnutls_anon_allocate_client_credentials(&anon_creds),
+	      "Error allocating TLS anonymous client credentials");
+  gnutls_wrap(gnutls_init(&tls_session, GNUTLS_CLIENT),
+	      "Error creating TLS session");
+
+#ifdef HAVE_GNUTLS_PRIORITY_SET_DIRECT
+  gnutls_wrap(gnutls_priority_set_direct(tls_session, "NORMAL:+ANON-ECDH:+ANON-DH", NULL),
+	      "Error setting TLS options");
+#else
+  gnutls_wrap(gnutls_set_default_priority(tls_session),
+	      "Error setting TLS options");
+#endif
+  gnutls_wrap(gnutls_credentials_set(tls_session, GNUTLS_CRD_ANON, anon_creds),
+	      "Error setting TLS credentials");
+  gnutls_wrap(gnutls_server_name_set(tls_session, GNUTLS_NAME_DNS, remote, strlen(remote)),
+	      "Error setting TLS server name");
+  gnutls_session_set_ptr(tls_session, (void*)remote);
+}
+
+void tls_init(const char* remote)
+{
+  if ((tls_x509certfile || tls_x509keyfile || tls_x509cafile || tls_x509crlfile) && (tls_anon_auth)) {
+    protocol_fail(ERR_MSG_TEMPFAIL, "Error: TLS certificate and TLS anonymous auth options cannot both be specified");
+  }
+
+  if (tls_anon_auth && tls_insecure) {
+    tls_anon_auth_init(remote);
+  } else {
+    tls_cert_auth_init(remote);
+  }
+}
+
 void tls_send(fdibuf& in, int fd)
 {
   int r;
 
-  gnutls_transport_set_ptr(tls_session, (gnutls_transport_ptr_t)fd);
+  gnutls_transport_set_ptr(tls_session, (gnutls_transport_ptr_t)(long)fd);
 
   do {
     r = gnutls_handshake(tls_session);

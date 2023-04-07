@@ -1,7 +1,7 @@
-AC_INIT
+AC_INIT([nullmailer], [2.1])
 AC_LANG([C++])
 AC_CONFIG_SRCDIR([lib/defines.h])
-AM_INIT_AUTOMAKE(nullmailer, 1.13)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 AC_PROG_MAKE_SET
 
@@ -10,6 +10,7 @@ AC_PROG_CC
 AC_PROG_CXX
 CXX_NO_RTTI
 CXX_NO_EXCEPTIONS
+AC_SYS_LARGEFILE
 
 CFLAGS="$CFLAGS -W -Wall"
 CXXFLAGS="$CXXFLAGS -W -Wall"
@@ -48,6 +49,24 @@ dnl Checks for library functions.
 dnl AC_CHECK_FUNCS(gettimeofday mkdir putenv rmdir socket)
 AC_CHECK_FUNCS(setenv srandom)
 
+AC_MSG_CHECKING(for getaddrinfo)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stddef.h>
+]], [[
+getaddrinfo(NULL, NULL, NULL, NULL)
+]])], [has_getaddrinfo=yes], [has_getaddrinfo=no])
+if test "$has_getaddrinfo" = yes; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GETADDRINFO,,[getaddrinfo code enabled])
+else
+  AC_MSG_RESULT(no)
+  AC_MSG_RESULT(disabled: getaddrinfo missing)
+fi
+AC_SUBST(HAVE_GETADDRINFO)
+
 AC_DEFINE(BUFSIZE, 4096, [Generic buffer size])
 AM_CONDITIONAL(FDBUF_NO_MYSTRING, false)
 
@@ -63,6 +82,8 @@ AM_CONDITIONAL(TLS, $tls)
 if $tls; then
   AC_CHECK_LIB(gnutls, gnutls_certificate_set_verify_function,
    [AC_DEFINE(HAVE_GNUTLS_SET_VERIFY_FUNCTION, 1, [libgnutls has gnutls_certificate_set_verify_function])])
+  AC_CHECK_LIB(gnutls, gnutls_priority_set_direct,
+   [AC_DEFINE(HAVE_GNUTLS_PRIORITY_SET_DIRECT, 1, [libgnutls has gnutls_priority_set_direct])])
 fi
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile lib/cli++/Makefile lib/fdbuf/Makefile lib/mystring/Makefile protocols/Makefile src/Makefile test/Makefile])

@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 2012  Bruce Guenter <bruce@untroubled.org>
+// Copyright (C) 2017  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,12 +19,14 @@
 // available to discuss this package.  To subscribe, send an email to
 // <nullmailer-subscribe@lists.untroubled.org>.
 
-#include <config.h>
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "configio.h"
 #include "fdbuf/fdbuf.h"
 #include "defines.h"
+#include "forkexec.h"
 #include "setenv.h"
 #include "cli++/cli++.h"
 
@@ -98,40 +100,45 @@ bool setenvelope(char* str)
   return true;
 }
 
-int do_exec(const char* program, const char* xarg1, int argc, char* argv[])
+int do_exec(const char* program, const char* args[])
 {
-  if(chdir(BIN_DIR) == -1) {
-    ferr << "sendmail: Could not change directory to " << BIN_DIR << endl;
-    return 1;
-  }
-
-  const char* newargv[argc+3];
-  newargv[0] = program;
-  int j = 1;
-  if (xarg1)
-    newargv[j++] = xarg1;
-  for(int i = 0; i < argc; i++)
-    newargv[j++] = argv[i];
-  newargv[j] = 0;
-
-  execv(newargv[0], (char**)newargv);
+  mystring path = program_path(program);
+  args[0] = path.c_str();
+  execv(args[0], (char**)args);
   ferr << "sendmail: Could not exec " << program << '.' << endl;
   return 1;
 }
 
 int cli_main(int argc, char* argv[])
 {
-  if(o_sender)
-    setenv("NULLMAILER_NAME", o_sender, 1);
-  if(o_from)
-    if(!setenvelope(o_from))
-      return -1;
+  const char* extra_args[argc + 5] = {0};
+  int extra_argc = 1;
+
   switch (o_mode) {
   case mode_smtp:
-    return do_exec("nullmailer-smtpd", 0, 0, 0);
+    return do_exec("nullmailer-smtpd", extra_args);
   case mode_mailq:
-    return do_exec("mailq", 0, 0, 0);
+    return do_exec("mailq", extra_args);
   default:
-    return do_exec("nullmailer-inject", use_header ? "-b" : "-e", argc, argv);
+
+    extra_args[extra_argc++] = use_header ? "-b" : "-e";
+
+    if(o_sender)
+      setenv("NULLMAILER_NAME", o_sender, 1);
+    if(o_from) {
+      if(!setenvelope(o_from))
+        return -1;
+
+      // pass along empty sender
+      if(o_from[0] == '\0' || (strcmp(o_from, "<>") == 0)) {
+        extra_args[extra_argc++] = "-f";
+        extra_args[extra_argc++] = o_from;
+      }
+    }
+
+    for(int i = 0; i < argc; i++)
+      extra_args[extra_argc++] = argv[i];
+
+    return do_exec("nullmailer-inject", extra_args);
   }
 }
