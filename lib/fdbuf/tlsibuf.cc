@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Bruce Guenter <bruce@untroubled.org>
+// Copyright (C) 2018 Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,5 +27,10 @@ tlsibuf::tlsibuf(gnutls_session_t s, unsigned bufsz)
 
 ssize_t tlsibuf::_read(char* buf, ssize_t len)
 {
-  return gnutls_record_recv(session, buf, len);
+  int rc;
+  do
+  {
+    rc = gnutls_record_recv(session, buf, len);
+  } while (rc == GNUTLS_E_AGAIN);
+  return rc;
 }

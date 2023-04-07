@@ -16,9 +16,10 @@ ln -s $builddir/src $tmpdir/bin
 ln -s $builddir/protocols/* $tmpdir/protocols/
 
 exit_cleanup() {
+    local exit=$?
     svc -dx $tmpdir/service/* > /dev/null 2>&1 || :
     # Remove all temporary files on success
-    if [ $? -eq 0 ]
+    if [ $exit -eq 0 ]
     then
         wait
         rm -rf $tmpdir
@@ -47,6 +48,10 @@ stop() {
 	svc -dx $tmpdir/service/$name >/dev/null 2>&1
 	wait
     done
+}
+catch-port() {
+    local name=$1
+    port=$( head -n 1 $tmpdir/service/${name}-log )
 }
 
 #not() { if "$@"; then return 1; else return 0; fi }
@@ -126,6 +131,21 @@ splitblank() {
       echo "$line" >> ${fn}.$n
     fi
   done
+}
+
+make-testmail() {
+    testmail=$tmpdir/testmail
+    rm -f $testmail
+    cat >$testmail <<EOF
+bruce@untroubled.org
+bruce@untroubled.org
+
+From: <bruce@untroubled.org>
+To: <bruce@untroubled.org>
+Subject: Nullmailer automated test message
+
+Just testing, please ignore
+EOF
 }
 
 export PATH=/bin:/usr/bin:/usr/local/bin

@@ -1,0 +1,4 @@
+debian/man/nullmailer-qmqp.8
+debian/man/nullmailer-smtp.8
+doc/mailq.1
+doc/nullmailer-smtpd.1

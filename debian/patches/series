@@ -3,3 +3,5 @@
 0004-Allow-unqualified-sender-address.patch
 0005-Provide-for-etc-mailname.patch
 0006-Refer-to-manpages-and-locations-provided-by-Debian.patch
+0006-Disable-DNS-using-test.patch
+0007-disable-all-smtp-auth-tests.patch

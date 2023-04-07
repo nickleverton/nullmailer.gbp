@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: David Bremner <bremner@debian.org>
 Uploaders: Felix Lechner <felix.lechner@lease-up.com>
 Build-Depends: daemontools,
-               debhelper (>= 10.2.5),
+               debhelper (>= 10.8),
                libgnutls28-dev | libgnutls-dev,
                po-debconf,
                ucspi-tcp-ipv6
@@ -21,14 +21,14 @@ Description: simple relay-only mail transport agent
  useful on slave machines and in chroots.
  .
  This package omits the /usr/lib/sendmail binary and does not Provide:
- mail-transport-agent, so that it can be installed on the same
- machine as a full MTA.  To provide a full mail-transport-agent, install
- nullmailer-sendmail as well.
+ mail-transport-agent, so that it can be installed on the same machine
+ as another full MTA.  To provide a full nullmailer mail-transport-agent,
+ install nullmailer-sendmail as well.
 
 Package: nullmailer-sendmail
 Architecture: any
 Depends: nullmailer (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Conflicts: mail-transport-agent, lsb
+Conflicts: mail-transport-agent
 Provides: mail-transport-agent
 Replaces: mail-transport-agent
 Description: simple relay-only mail transport agent - sendmail binary
@@ -38,6 +38,3 @@ Description: simple relay-only mail transport agent - sendmail binary
  .
  This package includes the /usr/{sbin,lib}/sendmail binary and Provides:
  mail-transport-agent when installed in conjunction with nullmailer.
- .
- The sendmail interface of this package doesn't provide the -bs switch,
- hence it's not LSB compatible!

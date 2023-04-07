@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 2017  Bruce Guenter <bruce@untroubled.org>
+// Copyright (C) 2018  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -274,6 +274,7 @@ void setup_from()
   mystring name = getenv("NULLMAILER_NAME");
   if(!name) name = getenv("MAILNAME");
   if(!name) name = getenv("NAME");
+  if(!name) name = user;
 
   if(use_name_address_style) {
     if(!name) from = "<" + user + "@" + host + ">";

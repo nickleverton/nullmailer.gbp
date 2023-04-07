@@ -1,2 +1,4 @@
-debian/systemd/nullmailer.service lib/systemd/system/
+etc
+usr
+var
 debian/logcheck etc
