@@ -19,27 +19,23 @@
 // available to discuss this package.  To subscribe, send an email to
 // <nullmailer-subscribe@lists.untroubled.org>.
 
-#include "errcodes.h"
+#include <config.h>
+#include <stdlib.h>
+#include <string.h>
+#include "setenv.h"
 
-const char* const errorstr[] = {
-  "No error",
-  "Unspecified error",
-  "Host not found",
-  "Host has no address",
-  "Fatal error in gethostbyname",
-  "Temporary error in gethostbyname",
-  "Socket failed",
-  "Connection refused",
-  "Connection timed out",
-  "Host or network unreachable",
-  "Connection failed",
-  "Protocol error",
-  "Could not open message",
-  "Could not read message",
-  "Could not write message",
-  "Could not exec program",
-  "Server refused the message",
-  "Temporary error in sending the message",
-  "Permanent error in sending the message",
-  "Command-line usage error",
-};
+#ifndef HAVE_SETENV
+// This is not really a full emulation of setenv, but close enough
+int setenv(const char* var, const char* val, int overwrite)
+{
+  size_t varlen = strlen(var);
+  size_t vallen = strlen(val);
+  char* str = (char*)malloc(varlen+vallen+2);
+  if (str == 0) return -1;
+  memcpy(str, var, varlen);
+  str[varlen] = '=';
+  memcpy(str+varlen+1, val, vallen);
+  str[varlen+vallen+1] = 0;
+  return putenv(str);
+}
+#endif

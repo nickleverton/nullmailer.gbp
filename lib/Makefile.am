@@ -14,8 +14,10 @@ libmisc_a_SOURCES = \
 	errcodes.h errcodes.cc \
 	hostname.h hostname.cc \
 	itoa.h itoa.cc \
-	makefield.cc \
-	netstring.h netstring.cc
+	makefield.cc makefield.h \
+	netstring.h netstring.cc \
+	selfpipe.cc selfpipe.h \
+	setenv.cc setenv.h
 
 libnullmailer_a_SOURCES =
 libnullmailer.a: mergelib.sh libmisc.a fdbuf/libfdbuf.a \
