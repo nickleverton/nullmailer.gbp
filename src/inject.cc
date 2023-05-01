@@ -1,5 +1,5 @@
 // nullmailer -- a simple relay-only MTA
-// Copyright (C) 1999-2003  Bruce Guenter <bruceg@em.ca>
+// Copyright (C) 1999-2003  Bruce Guenter <bruce@untroubled.org>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// You can contact me at <bruceg@em.ca>.  There is also a mailing list
+// You can contact me at <bruce@untroubled.org>.  There is also a mailing list
 // available to discuss this package.  To subscribe, send an email to
-// <nullmailer-subscribe@lists.em.ca>.
+// <nullmailer-subscribe@lists.untroubled.org>.
 
 #include "config.h"
 #include "defines.h"
@@ -66,7 +66,7 @@ cli_option cli_options[] = {
     "Send the formatted message to standard output", 0 },
   { 'v', "show-envelope", cli_option::flag, 1, &show_envelope,
     "Show the envelope with the message", 0 },
-  {0},
+  {0, 0, cli_option::flag, 0, 0, 0, 0}
 };
 
 #define fail(MSG) do{ fout << "nullmailer-inject: " << MSG << endl; return false; }while(0)
@@ -333,7 +333,7 @@ bool read_header()
 {
   mystring whole;
   while(fin.getline(cur_line)) {
-    if(!cur_line)
+    if(!cur_line || cur_line == "\r")
       break;
     if(!!whole && is_continuation(cur_line)) {
       //if(!whole)
@@ -349,6 +349,7 @@ bool read_header()
       if(!!whole)
 	parse_line(whole);
       whole = cur_line;
+      cur_line = "";
     }
   }
   if(!!whole)
