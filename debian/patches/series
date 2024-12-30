@@ -6,3 +6,4 @@
 0006-Disable-DNS-using-test.patch
 0007-disable-all-smtp-auth-tests.patch
 0008-fix-loop-bound-bug-caused-by-integer-type-conversion.patch
+0009-change-declaration-of-cli_program-to-match-other-bin.patch

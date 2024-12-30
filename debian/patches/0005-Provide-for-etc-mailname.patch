@@ -56,7 +56,7 @@ index f000e9e..3e7ad2d 100644
  .BR me .
  .SH SEE ALSO
 diff --git a/doc/nullmailer-queue.8 b/doc/nullmailer-queue.8
-index 291ea65..2cdc890 100644
+index 97aa92f..12d3058 100644
 --- a/doc/nullmailer-queue.8
 +++ b/doc/nullmailer-queue.8
 @@ -22,9 +22,9 @@ message to stdandard output.
@@ -100,10 +100,10 @@ index 5a7bde2..ac94ffc 100644
      me = "me";
    }
 diff --git a/test/functions.in b/test/functions.in
-index 0d40ced..951b6cc 100644
+index bc62b67..9f8c922 100644
 --- a/test/functions.in
 +++ b/test/functions.in
-@@ -150,6 +150,6 @@ EOF
+@@ -154,6 +154,6 @@ EOF
  
  export PATH=/bin:/usr/bin:/usr/local/bin
  rm -f $SYSCONFDIR/*

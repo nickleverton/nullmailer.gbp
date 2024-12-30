@@ -1,0 +1,29 @@
+From: David Bremner <david@tethera.net>
+Date: Fri, 21 Jun 2024 15:20:06 -0300
+Subject: change declaration of cli_program to match other binaries
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Following a suggestion of Bernhard Übelacker, this seems to fix a
+mysterious crash [1][2] when invoked from swaks via --pipe.
+
+[1]: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1072922
+[2]: https://github.com/bruceg/nullmailer/issues/95
+---
+ src/smtpd.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/smtpd.cc b/src/smtpd.cc
+index 4e81084..3fb2009 100644
+--- a/src/smtpd.cc
++++ b/src/smtpd.cc
+@@ -52,7 +52,7 @@ static mystring line;
+ static mystring sender;
+ static mystring recipients;
+ 
+-extern const char cli_program[] = "nullmailer-smtpd";
++const char *cli_program = "nullmailer-smtpd";
+ 
+ static int readline()
+ {

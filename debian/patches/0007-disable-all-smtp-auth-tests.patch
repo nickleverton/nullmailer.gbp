@@ -4,14 +4,14 @@ Subject: disable all smtp-auth tests
 
 These seem racy in ways that I haven't been able to completely nail down
 ---
- test/tests/smtp-auth | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ test/tests/smtp-auth | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
 diff --git a/test/tests/smtp-auth b/test/tests/smtp-auth
-index 52e12d0..2dc736f 100644
+index b0de850..eba2c6d 100644
 --- a/test/tests/smtp-auth
 +++ b/test/tests/smtp-auth
-@@ -1,25 +1,25 @@
+@@ -1,27 +1,27 @@
  . functions
  export HELOHOST=f.q.d.n
  
@@ -51,5 +51,8 @@ index 52e12d0..2dc736f 100644
 +# echo '550 No' > $tmpdir/smtp-result
 +# error 20 protocol smtp --host=localhost --port $port --user=example --pass=example 3<$testmail
  
+-rm -f $tmpdir/smtp-result
++#rm -f $tmpdir/smtp-result
+ 
 -stop server
-+# stop server
++#stop server

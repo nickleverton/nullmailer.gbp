@@ -1,0 +1,93 @@
+# Mesajele în limba română pentru pachetul nullmailer.
+# Romanian translation of nullmailer.
+# Copyright © 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the nullmailer package.
+#
+# Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>, 2023.
+#
+# Cronologia traducerii fișierului „nullmailer”:
+# Traducerea inițială, făcută de R-GC, pentru versiunea nullmailer 1 2.2-4(2012-03-01).
+# Actualizare a traducerii pentru versiunea Y, făcută de X, Y(anul).
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nullmailer 1 2.2-4\n"
+"Report-Msgid-Bugs-To: nullmailer@packages.debian.org\n"
+"POT-Creation-Date: 2012-03-01 09:23+0000\n"
+"PO-Revision-Date: 2023-03-04 16:42+0100\n"
+"Last-Translator: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>\n"
+"Language-Team: Romanian <debian-l10n-romanian@lists.debian.org>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && "
+"n%100<=19) ? 1 : 2);\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#. Type: string
+#. Description
+#: ../templates:1001
+msgid "Mailname of your system:"
+msgstr "Numele de e-mail al sistemului dumneavoastră:"
+
+#. Type: string
+#. Description
+#: ../templates:1001
+msgid ""
+"This is the fully-qualified host name of the computer running nullmailer. It "
+"defaults to the literal name 'me'."
+msgstr ""
+"Acesta este numele de gazdă complet al calculatorului care rulează "
+"«nullmailer». Se folosește implicit numele literal „me” (eu, în engleză)."
+
+#. Type: string
+#. Description
+#: ../templates:3001
+msgid "Smarthosts:"
+msgstr "Mașini releu:"
+
+#. Type: string
+#. Description
+#: ../templates:3001
+msgid ""
+"This is a colon-separated list of remote servers to which to send each message. "
+"Each entry contains a remote host name or address followed by an optional "
+"protocol string 'host protocol'. The protocol name defaults to smtp, and may be "
+"followed by command-line arguments for that module."
+msgstr ""
+"Aceasta este o listă de servere la distanță, separate prin două puncte, către "
+"care să se trimită fiecare mesaj. Fiecare intrare conține un nume sau o adresă "
+"de gazdă la distanță urmată de un șir de protocol opțional „protocol de gazdă”. "
+"Numele protocolului este implicit „smtp” și poate fi urmat de argumente de "
+"linie de comandă pentru modulul respectiv."
+
+#. Type: string
+#. Description
+#: ../templates:3001
+msgid "Examples:"
+msgstr "Exemple:"
+
+#. Type: string
+#. Description
+#: ../templates:4001
+msgid "Where to send local emails (optional):"
+msgstr "Unde se trimit e-mailuri locale (opțional):"
+
+#. Type: string
+#. Description
+#: ../templates:4001
+msgid ""
+"If not empty, all recipients to users at either 'localhost' (the literal "
+"string) or the canonical host name (from /etc/mailname) are remapped to this "
+"address. This is provided to allow local daemons to be able to send email to "
+"'somebody@localhost' and have it go somewhere sensible instead of being bounced "
+"by your relay host."
+msgstr ""
+"Dacă câmpul de adresă nu este gol, toți destinatarii de e-mail aparținând "
+"mașinii al cărei nume este fie „localhost” (șirul literal), fie numele de gazdă "
+"canonic (din „/etc/mailname”), sunt asociați cu această adresă. Acest lucru "
+"este furnizat pentru a permite demonilor locali să poată trimite e-mail la "
+"„oricine@localhost” și să-l facă să meargă la locul potrivit, în loc să fie "
+"respins de gazda dumneavoastră de retransmisie."

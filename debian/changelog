@@ -1,3 +1,56 @@
+nullmailer (1:2.2+10~g7ed88a0-6.1) unstable; urgency=medium
+
+  * Non-maintainer upload with maintainer permission.
+  * Declare explicit need for fakeroot due to non-root:root
+    ownership. (Closes: #1089403)
+
+ -- Niels Thykier <niels@thykier.net>  Mon, 30 Dec 2024 16:53:33 +0000
+
+nullmailer (1:2.2+10~g7ed88a0-6) unstable; urgency=medium
+
+  * Bug fix: "'sendmail -bs' crashes..."  thanks to Axel Beckert (Partial
+    fix for #1072922).
+
+ -- David Bremner <bremner@debian.org>  Fri, 21 Jun 2024 15:28:49 -0300
+
+nullmailer (1:2.2+10~g7ed88a0-5) unstable; urgency=medium
+
+  * Disable test suite due to broken dependency (#1066629)
+
+ -- David Bremner <bremner@debian.org>  Thu, 11 Apr 2024 08:48:12 -0300
+
+nullmailer (1:2.2+10~g7ed88a0-4) unstable; urgency=medium
+
+  * Upload to unstable
+  * Mark daemontools and ucspi as used only by the test suite.
+
+ -- David Bremner <bremner@debian.org>  Sun, 24 Mar 2024 08:55:56 -0300
+
+nullmailer (1:2.2+10~g7ed88a0-3) experimental; urgency=medium
+
+  * Add systemd sandboxing, thanks to Federico Ceratto
+
+ -- David Bremner <bremner@debian.org>  Fri, 08 Mar 2024 07:04:06 -0400
+
+nullmailer (1:2.2+10~g7ed88a0-2) unstable; urgency=medium
+
+  * Bug fix: "Drop Felix from Uploaders", thanks to Felix Lechner (Closes:
+    #1040002).
+  * Bug fix: "let debhelper pick location of systemd service", thanks to
+    Chris Hofstaedtler (Closes: #1057851).
+
+ -- David Bremner <bremner@debian.org>  Sat, 09 Dec 2023 21:02:01 -0400
+
+nullmailer (1:2.2+10~g7ed88a0-1) unstable; urgency=medium
+
+  * Update to new upstream version 2.2+10~g7ed88a0.
+  * Bug fix: "Add 'AUTH EXTERNAL'; option for certificate
+    authentication", thanks to Bjørn Mork (Closes: #1006729).
+  * Bug fix: "[INTL:ro] Romanian debconf templates translation of
+    nullmailer", thanks to Remus-Gabriel Chelu (Closes: #1033086).
+
+ -- David Bremner <bremner@debian.org>  Mon, 24 Apr 2023 09:48:25 -0300
+
 nullmailer (1:2.2-4) unstable; urgency=medium
 
   * New patch: avoid integer type conversion problems in parse_output.
