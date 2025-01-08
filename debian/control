@@ -13,7 +13,7 @@ Homepage: http://untroubled.org/nullmailer/
 
 Package: nullmailer
 Architecture: any
-Depends: lsb-base, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Recommends: nullmailer-sendmail
 Description: simple relay-only mail transport agent
  Nullmailer is a replacement MTA for hosts, which relay to a fixed set of
